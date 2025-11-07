@@ -1,0 +1,342 @@
+import React, { useEffect, useRef, useState } from "react";
+import coin from "../../assets/About-Img/Coin.jpg";
+import chart from "../../assets/About-Img/Chart.jpg";
+import { FaCheckCircle } from "react-icons/fa";
+import img from "../../assets/About-Img/Cafe.jpg";
+import img1 from "../../assets/About-Img/student.jpg";
+import img2 from "../../assets/About-Img/cafe 1.jpg";
+import img3 from "../../assets/About-Img/cafe page.jpg";
+import Footer from "../About/Footer";
+
+const steps = [
+  {
+    title: "Step 1: Introduction",
+    desc: "Learn about the basics of financial planning and how Good Debt can help you achieve your goals.",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShp4dkhZXFRvipkiHXgPC1S46XUVwLmKAkrfxCCXBif-fTrn0qxItd9P9lnCgvrmAKdlk&usqp=CAU",
+  },
+  {
+    title: "Step 2: Credit Solutions",
+    desc: "Discover flexible loan options for personal and business needs.",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJf6wJhYb_8sp1mdCK5DwkBUzx4eSHjTz-A-5n18Tw9L6wAuk8KuZb3TMilkbGRUMQRi0&usqp=CAU",
+  },
+  {
+    title: "Step 3: Loan Services",
+    desc: "Discover flexible loan options for personal and business needs.",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5dpWxZuuBXAl_-MFTb9k1VkuFImVdbj4CXww-UQshQMYWCR1ilqCQgmeiuGwClH5Ugw8&usqp=CAU",
+  },
+  {
+    title: "Step 4: Financial Tools",
+    desc: "Use our EMI calculators and other tools to plan your finances effectively.",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEyVwGDUnESTP9qj_qd9uB7FL8sPdDQYYvzBtssx65a51xjdUfs5A_GhrVG8ylk8K9tVU&usqp=CAU",
+  },
+  {
+    title: "Step 5: Success Stories",
+    desc: "Hear from our satisfied customers and their journey with Good Debt.",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSO61QoZ7eaH-z4R_DbVqNRvpe2PBy4VDjuSv2TZgTwOBF3xrEDCdjLJ9Xbp3Pj2V4HgZU&usqp=CAU",
+  },
+];
+
+function About() {
+  const timelineRef = useRef(null);
+  const [lineHeight, setLineHeight] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = timelineRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      const progress = Math.min(
+        Math.max((windowHeight - rect.top) / (rect.height + windowHeight), 0),
+        1
+      );
+
+      setLineHeight(progress * 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <>
+      {/* ===== About Section ===== */}
+      <div className="w-full min-h-screen p-10 mt-30 bg-white flex flex-col gap-12">
+        <div className="flex gap-3">
+          {/* Left side images */}
+             <div className="flex-1 flex flex-col justify-end items-end gap-8 p-6 rounded-lg">
+          <img
+            src={coin}
+            alt="Coin-Image"
+            className="w-full max-w-lg h-120 rounded"
+          />
+          <img
+            src={chart}
+            alt="Chart-Image"
+            className="w-full max-w-lg h-120 rounded"
+          />
+        </div>
+
+          {/* Right side text content */}
+          <div className="flex-1 flex flex-col justify-start min-w-40 text-left h-full">
+            <div className="flex flex-col pr-15 justify-center">
+              <h1 className="text-3xl text-blue-600 mt-5 mb-4 font-bold">
+                About Us
+              </h1>
+              <h2 className="text-4xl font-bold text-[#343a40]">
+                Empowering Your Financial Journey with Smart Credit & Loans.
+              </h2>
+              <p className="leading-relaxed mt-8 text-gray-700 max-w-xl">
+                At Good Debt, we believe credit should be a stepping
+                stone—not a burden. We offer fast, flexible loans and credit
+                card solutions that help individuals and businesses grow with
+                confidence, not stress. Whether you're building credit,
+                handling emergencies, or planning your next big move—we’re here
+                to support your financial goals.
+              </p>
+
+              {/* Features list */}
+             <div className="space-y-3 text-md font-semibold mt-8 text-gray-800">
+              {[
+                "Flexible Personal & Business Loans",
+                "Rewarding Credit Card Programs",
+                "Fast Approval & Transparent Terms",
+                "Trusted by Millions Worldwide",
+              ].map((text, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <FaCheckCircle className="text-blue-500" size={18} />
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Discover Button */}
+          <button className="self-start mt-7 bg-blue-500 text-white px-6 py-3 rounded shadow hover:bg-blue-700 transition">
+            Discover More
+          </button>
+
+          {/* Images row */}
+          <div className="flex items-center gap-4 mt-6">
+            {[img, img1, img2, img3].map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt={`Gallery ${i}`}
+                className="w-13 h-13 object-cover rounded-full shadow-md"
+              />
+            ))}
+            <div>
+              <span className="block font-sans">500+ Trusted Global</span>
+              <span className="block font-sans">Customers</span>
+            </div>
+          </div>
+
+            {/* Stats row */}
+             <div className="flex  items-start gap-2 t mix-w-md text-center text-blue-600 font-semibold text-lg mt-6">
+            <div className="w-35 h-30 bg-blue-500 flex flex-col justify-center items-center rounded-md text-white">
+              <h3>2K+</h3>
+              <p>
+                Loans
+                <br />
+                Approved
+              </p>
+            </div>
+            <div className="w-35 h-30 bg-black flex flex-col justify-center items-center rounded-md text-white">
+              <h3>5+</h3>
+              <p>
+                Years Of
+                <br />
+                Experience
+              </p>
+            </div>
+            <div className="w-35 h-30 bg-[#17a2b8] flex flex-col justify-center items-center rounded-md text-white">
+              <h3>15+</h3>
+              <p>
+                Finance
+                <br />
+                Experts
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      {/* ===== Timeline Section ===== */}
+      <div  className="">
+
+      <div className="relative max-w-6xl mx-auto py-20">
+        <div ref={timelineRef} className="grid grid-cols-3  relative">
+          {/* Center Line */}
+          <div className="absolute left-1/2 -translate-x-1/2 w-1 bg-gray-200 rounded min-h-full">
+            {/* Animated Blue Line */}
+            <div
+              className="absolute left-0 top-0 w-1 bg-blue-500 rounded transition-all duration-700 ease-in-out"
+              style={{ height: `${lineHeight}%` }}
+            ></div>
+          </div>
+
+          {/* Steps */}
+          <div className="col-span-3 space-y-32">
+            {steps.map((step, i) => (
+              <div key={i} className="grid grid-cols-3 gap-6 items-center">
+                {i % 2 === 0 ? (
+                  <>
+                    {/* Left text */}
+                    <div className="col-span-1 flex flex-col justify-start items-start text-justify pr-6">
+                      <h2 className="text-2xl ml-1 font-bold text-blue-600">
+                        {step.title}
+                      </h2>
+                      <p className="text-gray-600 mt-2">{step.desc}</p>
+                    </div>
+
+                    {/* Center dot */}
+                    <div className="flex justify-center relative">
+                      <div className="w-6 h-6 border-4 border-blue-500 bg-white rounded-full z-10"></div>
+                    </div>
+
+                    {/* Right image */}
+                    <div className="col-span-1 flex justify-start">
+                      <img
+                        src={step.img}
+                        alt={step.title}
+                        className="rounded-xl shadow-lg"
+                        />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Left image */}
+                    <div className="col-span-1 flex justify-end">
+                      <img
+                        src={step.img}
+                        alt={step.title}
+                        className="rounded-xl shadow-lg"
+                        />
+                    </div>
+
+                    {/* Center dot */}
+                    <div className="flex justify-center relative">
+                      <div className="w-6 h-6 border-4 border-blue-500 bg-white rounded-full z-10"></div>
+                    </div>
+
+                    {/* Right text */}
+                    <div className="col-span-1 text-left pl-6">
+                      <h2 className="text-2xl font-bold text-blue-600">
+                        {step.title}
+                      </h2>
+                      <p className="text-gray-600 mt-2">{step.desc}</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+                        </div>
+      </div>
+
+      {/* ===== Footer Outside Timeline ===== */}
+      <Footer />
+    </>
+  );
+}
+
+export default About;  responsive import React from 'react';
+import { Link } from 'react-router-dom';
+import {
+  FacebookFilled,
+  TwitterSquareFilled,
+  LinkedinFilled,
+  InstagramFilled,
+} from '@ant-design/icons';
+import FOOTER_LOGO from "../../assets/logo/logos-dark-transparent.png";
+
+const Footer = () => {
+  return (
+    <footer className="bg-[#343a40] text-white pt-8 pb-4">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 ">
+          {/* Logo & About */}
+          <div className="md:col-span-3 lg:col-span-2 mx-20 flex flex-col">
+            <Link to="/">
+              <img
+                loading="lazy"
+                src={FOOTER_LOGO}
+                className="mb-4 w-40"
+                alt="Good Debt Logo"
+              />
+            </Link>
+            <p className="text-sm">
+              At Good Debt, we help you manage your financial future with tailored credit card and loan solutions. Trusted by thousands for quick and secure services.
+            </p>
+          </div>
+
+          {/* Services */}
+          <div>
+            <h5 className="mb-2 font-semibold text-lg">Services</h5>
+            <ul>
+              <li>
+                <Link to="/" className="text-white/90 text-sm hover:text-white">Credit Card</Link>
+              </li>
+              <li>
+                <Link to="/loan-services" className="text-white/90 text-sm hover:text-white">Loan Services</Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h5 className="mb-1 font-semibold text-lg">Quick Links</h5>
+            <ul className='text-sm'>
+              <li><Link to="/" className="text-white/90 hover:text-white">Home</Link></li>
+              <li><Link to="/about" className="text-white/90 hover:text-white">About Us</Link></li>
+              <li><Link to="/faqs" className="text-white/90 hover:text-white">FAQs</Link></li>
+              <li><Link to="/contact" className="text-white/90 hover:text-white">Contact</Link></li>
+              <li><Link to="/become-a-partner" className="text-white/90 hover:text-white">Become a Partner</Link></li>
+              <li><Link to="/privacy" className="text-white/90 hover:text-white">Privacy Policy</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact & Social */}
+          <div>
+            <h5 className="mb-3 font-semibold text-lg">Contact & Social</h5>
+            <p className="text-sm">
+              Email: <a href="mailto:support@gooddebt.in" className="text-white/90 hover:text-white">support@gooddebt.in</a>
+            </p>
+            <p className="text-sm">Phone: +91 98765 43210</p>
+            <div className="flex gap-4 mt-3 text-2xl">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-200" aria-label="Facebook">
+                <FacebookFilled />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400" aria-label="Twitter">
+                <TwitterSquareFilled />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300" aria-label="LinkedIn">
+                <LinkedinFilled />
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-300" aria-label="Instagram">
+                <InstagramFilled />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <hr className="border-white/30 my-6" />
+
+        {/* Bottom */}
+        <div className="text-center text-white/80">
+          <small>© {new Date().getFullYear()} Good Debt. All rights reserved.</small>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;  responsive

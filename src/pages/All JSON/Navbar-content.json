@@ -1,0 +1,309 @@
+[
+  {
+    "id": "credit-cards",
+    "title": "Credit Cards",
+    "sub": [
+      {
+        "id": "hdfc-bank-credit-cards",
+        "title": "HDFC Bank Credit Cards",
+        
+        "sub": [
+          {
+            "id": "hdfc-platinum-card",
+            "title": "HDFC Platinum Card",
+            "path":"/HDFC-platinum-card"
+          },
+          {
+            "id": "hdfc-regalia-card",
+            "title": "HDFC Regalia Card"
+          },
+          {
+            "id": "hdfc-millennia-card",
+            "title": "HDFC Millennia Card"
+          },
+          {
+            "id": "hdfc-diners-club-black",
+            "title": "HDFC Diners Club Black"
+          },
+          {
+            "id": "hdfc-moneyback-plus",
+            "title": "HDFC MoneyBack Plus"
+          }
+        ]
+      },
+      {
+        "id": "sbi-credit-cards",
+        "title": "SBI Credit Cards",
+        "sub": [
+          {
+            "id": "sbi-simplysave",
+            "title": "SBI SimplySave"
+          },
+          {
+            "id": "sbi-simplyclick-card",
+            "title": "SBI SimplyClick Card"
+          },
+          {
+            "id": "sbi-elite-card",
+            "title": "SBI Elite Card"
+          },
+          {
+            "id": "sbi-prime-card",
+            "title": "SBI Prime Card"
+          },
+          {
+            "id": "sbi-air-india-signature-card",
+            "title": "SBI Air India Signature Card"
+          }
+        ]
+      },
+      {
+        "id": "icici-credit-cards",
+        "title": "ICICI Credit Cards",
+        "sub": [
+          {
+            "id": "icici-coral-card",
+            "title": "ICICI Coral Card"
+          },
+          {
+            "id": "icici-amazon-pay",
+            "title": "ICICI Amazon Pay"
+          },
+          {
+            "id": "icici-rubyx",
+            "title": "ICICI Rubyx"
+          },
+          {
+            "id": "icici-hpcl-card",
+            "title": "ICICI HPCL Card"
+          }
+        ]
+      },
+      {
+        "id": "axis-bank-credit-cards",
+        "title": "Axis Bank Credit Cards",
+        "sub": [
+          {
+            "id": "axis-flipkart",
+            "title": "Axis Flipkart"
+          },
+          {
+            "id": "axis-buzz-card",
+            "title": "Axis Buzz Card"
+          },
+          {
+            "id": "axis-my-zone-card",
+            "title": "Axis My Zone Card"
+          },
+          {
+            "id": "axis-mangus-card",
+            "title": "Axis Mangus Card"
+          }
+        ]
+      },
+      {
+        "id": "kotak-bank-credit-cards",
+        "title": "Kotak Bank Credit Cards",
+        "sub": [
+          {
+            "id": "kotak-royal-signature-card",
+            "title": "Kotak Royal Signature Card"
+          },
+          {
+            "id": "kotak-urban-gold-card",
+            "title": "Kotak Urban Gold Card"
+          },
+          {
+            "id": "kotak-league-platium-card",
+            "title": "Kotak League Platium Card"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "loans",
+    "title": "Loans",
+    "sub": [
+      {
+        "id": "hdfc-bank-loan",
+        "title": "HDFC Bank Loan",
+        "sub": [
+          {
+            "id": "hdfc-home-loans",
+            "title": "Home Loans"
+          },
+          {
+            "id": "hdfc-personal-loans",
+            "title": "Personal Loans"
+          },
+          {
+            "id": "hdfc-car-loans",
+            "title": "Car Loans"
+          },
+          {
+            "id": "hdfc-education-loans",
+            "title": "Education Loans"
+          },
+          {
+            "id": "hdfc-business-loans",
+            "title": "Business Loans"
+          },
+          {
+            "id": "hdfc-two-wheeler-loans",
+            "title": "Two Wheeler Loans"
+          },
+          {
+            "id": "hdfc-gold-loans",
+            "title": "Gold Loans"
+          },
+          {
+            "id": "hdfc-loan-against-property",
+            "title": "Loan Against Property"
+          }
+        ]
+      },
+      {
+        "id": "sbi-loans",
+        "title": "SBI Loans",
+        "sub": [
+          {
+            "id": "sbi-home-loans",
+            "title": "Home Loans"
+          },
+          {
+            "id": "sbi-personal-loans",
+            "title": "Personal Loans"
+          },
+          {
+            "id": "sbi-car-loans",
+            "title": "Car Loans"
+          },
+          {
+            "id": "sbi-education-loans",
+            "title": "Education Loans"
+          },
+          {
+            "id": "sbi-loan-against-property",
+            "title": "Loan Against Property"
+          },
+          {
+            "id": "sbi-agricultural-loans",
+            "title": "Agricultural Loans"
+          },
+          {
+            "id": "sbi-top-up-loans",
+            "title": "Top Up Loans"
+          }
+        ]
+      },
+      {
+        "id": "axis-bank-loans",
+        "title": "Axis Bank Loans",
+        "sub": [
+          {
+            "id": "axis-home-loans",
+            "title": "Home Loans"
+          },
+          {
+            "id": "axis-personal-loans",
+            "title": "Personal Loans"
+          },
+          {
+            "id": "axis-car-loans",
+            "title": "Car Loans"
+          },
+          {
+            "id": "axis-business-loans",
+            "title": "Business Loans"
+          },
+          {
+            "id": "axis-gold-loans",
+            "title": "Gold Loans"
+          },
+          {
+            "id": "axis-loan-against-property",
+            "title": "Loan Against Property"
+          }
+        ]
+      },
+      {
+        "id": "icici-bank-loans",
+        "title": "ICICI Bank Loans",
+        "sub": [
+          {
+            "id": "icici-home-loans",
+            "title": "Home Loans"
+          },
+          {
+            "id": "icici-personal-loans",
+            "title": "Personal Loans"
+          },
+          {
+            "id": "icici-car-loans",
+            "title": "Car Loans"
+          },
+          {
+            "id": "icici-business-loan",
+            "title": "Business Loan"
+          },
+          {
+            "id": "icici-instant-loan",
+            "title": "Instant Loan"
+          },
+          {
+            "id": "icici-two-wheeler-loans",
+            "title": "Two Wheeler Loans"
+          },
+          {
+            "id": "icici-education-loans",
+            "title": "Education Loans"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "emi-calculator",
+     "path": "../Emi/EMICalculator.jsx",
+    "title": "EMI Calculator",
+    "sub": [
+      {
+        "id": "home-loans-emi-calculator",
+        "title": "Home Loans EMI Calculator"
+      },
+      {
+        "id": "personal-loans-emi-calculator",
+        "title": "Personal Loans EMI Calculator"
+      },
+      {
+        "id": "car-loans-emi-calculator",
+        "title": "Car Loans EMI Calculator"
+      },
+      {
+        "id": "education-loans-emi-calculator",
+        "title": "Education Loans EMI Calculator"
+      },
+      {
+        "id": "business-loans-emi-calculator",
+        "title": "Business Loans EMI Calculator"
+      },
+      {
+        "id": "gold-loans-emi-calculator",
+        "title": "Gold Loans EMI Calculator"
+      },
+      {
+        "id": "two-wheeler-loans-emi-calculator",
+        "title": "Two Wheeler Loans EMI Calculator"
+      },
+      {
+        "id": "loan-against-property-emi-calculator",
+        "title": "Loan Against Property EMI Calculator"
+      },
+      {
+        "id": "credit-cards-loan-emi-calculator",
+        "title": "Credit Cards Loan EMI Calculator"
+      }
+    ]
+  }
+]

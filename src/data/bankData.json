@@ -1,0 +1,299 @@
+[
+  {
+    "id": 1,
+    "name": "Axis Bank",
+    "logo": "../assets/banks/axis_bank.avif",
+    "services": ["Personal Loans", "Home Loans", "Credit Cards", "Savings Accounts"],
+    "interestRates": {
+      "personalLoan": "10.25% - 16.75%",
+      "homeLoan": "8.50% - 9.15%",
+      "carLoan": "8.70% - 11.00%"
+    },
+    "salaryRange": "₹20,000/month and above",
+    "loanTypes": ["Home Loan", "Car Loan", "Personal Loan", "Education Loan"],
+    "eligibilityCriteria": [
+      "Minimum age: 21 years",
+      "Stable income proof",
+      "Good credit score (750+ preferred)"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "HDFC Bank",
+    "logo": "../assets/banks/hdfc.avif",
+    "services": ["Retail Banking", "Personal Loans", "Credit Cards", "Insurance"],
+    "interestRates": {
+      "personalLoan": "10.50% - 21.00%",
+      "homeLoan": "8.40% - 9.05%",
+      "carLoan": "8.70% - 11.50%"
+    },
+    "salaryRange": "₹25,000/month and above",
+    "loanTypes": ["Home Loan", "Car Loan", "Personal Loan", "Gold Loan"],
+    "eligibilityCriteria": [
+      "Salaried with 2+ years of experience",
+      "Good repayment history",
+      "Credit score 700+"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "IndusInd Bank",
+    "logo": "../assets/banks/INDUSIND BANK.png",
+    "services": ["Personal Loans", "Credit Cards", "Fixed Deposits", "Corporate Banking"],
+    "interestRates": {
+      "personalLoan": "11.00% - 20.00%",
+      "homeLoan": "8.50% - 9.30%",
+      "twoWheelerLoan": "9.75% - 12.00%"
+    },
+    "salaryRange": "₹18,000/month and above",
+    "loanTypes": ["Home Loan", "Personal Loan", "Business Loan", "Two-Wheeler Loan"],
+    "eligibilityCriteria": [
+      "Valid KYC documents",
+      "Minimum 1 year of employment",
+      "Credit score 700+"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Yes Bank",
+    "logo": "../assets/banks/yes.avif",
+    "services": ["Personal Banking", "Corporate Loans", "Credit Cards"],
+    "interestRates": {
+      "personalLoan": "11.99% - 20.00%",
+      "homeLoan": "8.75% - 9.50%"
+    },
+    "salaryRange": "₹22,000/month and above",
+    "loanTypes": ["Personal Loan", "Home Loan", "SME Loan"],
+    "eligibilityCriteria": [
+      "Minimum age: 21 years",
+      "Stable monthly income",
+      "Good repayment history"
+    ]
+  },
+  {
+    "id": 5,
+    "name": "IDFC First Bank",
+    "logo": "../assets/banks/IDFC FIRST BANK.png",
+    "services": ["Retail Banking", "Wealth Management", "Loans"],
+    "interestRates": {
+      "personalLoan": "10.75% - 18.00%",
+      "homeLoan": "8.50% onwards"
+    },
+    "salaryRange": "₹20,000/month and above",
+    "loanTypes": ["Personal Loan", "Home Loan", "Business Loan"],
+    "eligibilityCriteria": [
+      "Salaried or self-employed",
+      "Age 21-60 years",
+      "Credit score 700+"
+    ]
+  },
+  {
+    "id": 6,
+    "name": "HSBC Bank",
+    "logo": "../assets/HSBC.avif",
+    "services": ["International Banking", "Loans", "Credit Cards", "NRI Services"],
+    "interestRates": {
+      "personalLoan": "9.99% - 16.00%",
+      "homeLoan": "8.35% onwards"
+    },
+    "salaryRange": "₹35,000/month and above",
+    "loanTypes": ["Home Loan", "Personal Loan", "NRI Loan"],
+    "eligibilityCriteria": [
+      "Higher income requirement",
+      "Valid KYC and international banking compliance"
+    ]
+  },
+  {
+    "id": 7,
+    "name": "American Express",
+    "logo": "../assets/american_express.avif",
+    "services": ["Credit Cards", "Travel Services", "Corporate Finance"],
+    "interestRates": {
+      "creditCardAPR": "3.5% monthly"
+    },
+    "salaryRange": "₹50,000/month and above",
+    "loanTypes": ["Credit Cards only"],
+    "eligibilityCriteria": [
+      "Strong credit score",
+      "High salary requirement"
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Aditya Birla Finance",
+    "logo": "../assets/banks/ADITYA BIRLA.png",
+    "services": ["Personal Finance", "Business Loans", "Mutual Funds"],
+    "interestRates": {
+      "personalLoan": "11.00% - 22.00%"
+    },
+    "salaryRange": "₹18,000/month and above",
+    "loanTypes": ["Personal Loan", "Business Loan"],
+    "eligibilityCriteria": [
+      "Age 21-58 years",
+      "Stable income"
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Bajaj Finserv",
+    "logo": "../assets/banks/BAJAJ FINSERV.jpeg",
+    "services": ["Consumer Loans", "Personal Loans", "EMI Card", "Insurance"],
+    "interestRates": {
+      "personalLoan": "12.00% - 18.00%"
+    },
+    "salaryRange": "₹15,000/month and above",
+    "loanTypes": ["Personal Loan", "Business Loan", "Consumer Durable Loan"],
+    "eligibilityCriteria": [
+      "Flexible criteria",
+      "Basic income and KYC proof"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Bandhan Bank",
+    "logo": "../assets/banks/Bandhan Bank.jpeg",
+    "services": ["Retail Banking", "Microfinance", "Loans"],
+    "interestRates": {
+      "personalLoan": "10.50% - 18.00%"
+    },
+    "salaryRange": "₹12,000/month and above",
+    "loanTypes": ["Microfinance Loan", "Personal Loan", "Business Loan"],
+    "eligibilityCriteria": [
+      "Low-income friendly",
+      "Basic KYC documents"
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Cholamandalam Finance",
+    "logo": "../assets/banks/Chola-PROD.png",
+    "services": ["Vehicle Loans", "Business Loans", "SME Finance"],
+    "interestRates": {
+      "vehicleLoan": "8.75% onwards"
+    },
+    "salaryRange": "₹15,000/month and above",
+    "loanTypes": ["Vehicle Loan", "Business Loan"],
+    "eligibilityCriteria": [
+      "KYC proof",
+      "Repayment capacity check"
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Credit Saison",
+    "logo": "../assets/banks/CREDIT SAISION.png",
+    "services": ["Consumer Finance", "Business Loans"],
+    "interestRates": {
+      "personalLoan": "13.00% - 22.00%"
+    },
+    "salaryRange": "₹18,000/month and above",
+    "loanTypes": ["Consumer Loan", "Business Loan"],
+    "eligibilityCriteria": [
+      "Basic income and KYC proof"
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Finable Finance",
+    "logo": "../assets/banks/FINABLE FINANCE.png",
+    "services": ["Personal Loans", "Digital Finance"],
+    "interestRates": {
+      "personalLoan": "12.00% - 20.00%"
+    },
+    "salaryRange": "₹15,000/month and above",
+    "loanTypes": ["Personal Loan"],
+    "eligibilityCriteria": [
+      "Salaried employees only",
+      "KYC verification"
+    ]
+  },
+  {
+    "id": 14,
+    "name": "Hero Fincorp",
+    "logo": "../assets/banks/HERO FINCORP.png",
+    "services": ["Two-Wheeler Loans", "Business Loans"],
+    "interestRates": {
+      "twoWheelerLoan": "9.50% - 12.00%"
+    },
+    "salaryRange": "₹12,000/month and above",
+    "loanTypes": ["Two-Wheeler Loan", "Business Loan"],
+    "eligibilityCriteria": [
+      "Minimum age: 21 years",
+      "KYC proof"
+    ]
+  },
+  {
+    "id": 15,
+    "name": "InCred Finance",
+    "logo": "../assets/banks/INCRED FINANCE.png",
+    "services": ["Education Loans", "Personal Loans", "Business Loans"],
+    "interestRates": {
+      "educationLoan": "10.00% - 15.00%"
+    },
+    "salaryRange": "₹15,000/month and above",
+    "loanTypes": ["Education Loan", "Personal Loan"],
+    "eligibilityCriteria": [
+      "Student admission proof for education loan",
+      "Parent/guardian co-applicant"
+    ]
+  },
+  {
+    "id": 16,
+    "name": "Muthoot Finance",
+    "logo": "../assets/banks/MUTHOOT FINANCE.png",
+    "services": ["Gold Loans", "Housing Finance"],
+    "interestRates": {
+      "goldLoan": "7.00% - 12.00%"
+    },
+    "salaryRange": "Not applicable (Gold-backed loan)",
+    "loanTypes": ["Gold Loan", "Housing Loan"],
+    "eligibilityCriteria": [
+      "Gold collateral required"
+    ]
+  },
+  {
+    "id": 17,
+    "name": "Paysense",
+    "logo": "../assets/banks/PAYSENSE.jpeg",
+    "services": ["Personal Loans", "Digital Finance"],
+    "interestRates": {
+      "personalLoan": "13.00% - 24.00%"
+    },
+    "salaryRange": "₹15,000/month and above",
+    "loanTypes": ["Personal Loan"],
+    "eligibilityCriteria": [
+      "Basic KYC proof",
+      "Bank statement verification"
+    ]
+  },
+  {
+    "id": 18,
+    "name": "Piramal Capital",
+    "logo": "../assets/banks/PIRAMAL CAPITAL.jpeg",
+    "services": ["Corporate Finance", "Home Loans", "Retail Finance"],
+    "interestRates": {
+      "homeLoan": "8.25% - 9.00%"
+    },
+    "salaryRange": "₹20,000/month and above",
+    "loanTypes": ["Home Loan", "Corporate Loan"],
+    "eligibilityCriteria": [
+      "KYC proof",
+      "Good repayment capacity"
+    ]
+  },
+  {
+    "id": 19,
+    "name": "Tata Capital",
+    "logo": "../assets/banks/TATA CAPITAL PL.jpeg",
+    "services": ["Personal Finance", "Home Loans", "Vehicle Loans"],
+    "interestRates": {
+      "personalLoan": "10.99% - 19.00%"
+    },
+    "salaryRange": "₹20,000/month and above",
+    "loanTypes": ["Home Loan", "Car Loan", "Personal Loan"],
+    "eligibilityCriteria": [
+      "Salaried or self-employed",
+      "Credit score 700+"
+    ]
+  }
+]
