@@ -1,0 +1,756 @@
+
+
+import React, { useState } from "react";
+import axios from "axios";
+import { NavLink } from "react-router-dom";
+import Footer from "../../pages/About/Footer";
+import pinkback from "../../assets/banner/pink-back.jpg";
+
+ 
+/**
+ * Use the exact API URL you asked for.
+ * Keep this constant here so it's easy to change if you ever want local dev.
+ */
+const ENQUIRY_API_URL = "https://good-debt.onrender.com/api/enquiry/";
+ 
+/**
+ * safeToNumber
+ * Convert a value to number if possible, otherwise return the original
+ * Helps when working with numeric inputs that may be empty strings.
+ */
+const safeToNumber = (v) => {
+  if (v === "" || v === null || v === undefined) return v;
+  const n = Number(v);
+  return Number.isNaN(n) ? v : n;
+};
+
+/**
+ * formatCurrency
+ * Try to format a number as Indian currency with thousands separators.
+ * If formatting fails, return the original value.
+ */
+const formatCurrency = (value) => {
+  try {
+    const num = Number(value);
+    if (Number.isNaN(num)) return value;
+    return `₹${num.toLocaleString("en-IN")}`;
+  } catch (err) {
+    return value;
+  }
+};
+
+/**
+ * safeGet
+ * Small helper to safely get nested properties with fallback
+ */
+const safeGet = (obj, path, fallback = "-") => {
+  try {
+    return path.split(".").reduce((acc, key) => (acc ? acc[key] : undefined), obj) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+/* -------------------------------------------------------------------------- */
+/*                             Main Component                                  */
+/* -------------------------------------------------------------------------- */
+
+const Credit = () => {
+  /* ------------------------------ State: form ------------------------------ */
+  const [formData, setFormData] = useState({
+    full_name: "",
+    phone_number: "",
+    email_address: "",
+    pan_number: "",
+    date_of_birth: "",
+    current_city: "",
+    current_pincode: "",
+    net_income: "",
+  });
+
+  /* --------------------------- State: validation --------------------------- */
+  const [errors, setErrors] = useState({});
+
+  /* ---------------------------- State: UI status --------------------------- */
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiResponse, setApiResponse] = useState(null);
+  const [apiError, setApiError] = useState(null);
+  const [showForm, setShowForm] = useState(true);
+
+  /* ------------------------------- Modal state ----------------------------- */
+  const [modal, setModal] = useState({
+    open: false,
+    title: "",
+    message: "",
+  });
+
+  /* ----------------------------- Interest state ---------------------------- */
+  // Tracks which bank/product combinations user has shown interest for
+  const [submittedInterests, setSubmittedInterests] = useState([]);
+  // Tracks which interest action is currently "loading"
+  const [loadingInterest, setLoadingInterest] = useState(null);
+
+  /* ------------------------------------------------------------------------ */
+  /*                            State change handlers                          */
+  /* ------------------------------------------------------------------------ */
+
+  /**
+   * handleChange
+   * Generic onChange handler for form inputs. Supports number inputs gracefully.
+   */
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
+    let newValue = value;
+
+    if (type === "number") {
+      newValue = safeToNumber(value);
+    }
+
+    // Keep phone/pincode as strings (we validate format), but keep number input as number type
+    setFormData((prev) => ({
+      ...prev,
+      [name]: newValue,
+    }));
+
+    // Clear existing error for the field, if any
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  /* ------------------------------------------------------------------------ */
+  /*                                 Validation                                */
+  /* ------------------------------------------------------------------------ */
+
+  /**
+   * validateForm
+   * Validates the form and sets `errors` state. Returns true if valid.
+   *
+   * NOTE: PAN regex validation is intentionally omitted (user requested).
+   */
+  const validateForm = () => {
+    const newErrors = {};
+
+    // full_name
+    if (!formData.full_name || !formData.full_name.trim()) {
+      newErrors.full_name = "Full name is required";
+    }
+
+    // phone
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(String(formData.phone).trim())) {
+      newErrors.phone = "Phone number must be 10 digits";
+    }
+
+    // email
+    if (!formData.email || !formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(String(formData.email))) {
+      newErrors.email = "Email is invalid";
+    }
+
+    // pan (no format validation)
+    if (!formData.pan || !formData.pan.trim()) {
+      newErrors.pan = "PAN is required";
+    }
+
+    // dob
+    if (!formData.dob) {
+      newErrors.dob = "Date of birth is required";
+    }
+
+    // city
+    if (!formData.city || !formData.city.trim()) {
+      newErrors.city = "City is required";
+    }
+
+    // pincode
+    if (!formData.pincode || !formData.pincode.trim()) {
+      newErrors.pincode = "Pincode is required";
+    } else if (!/^\d{6}$/.test(String(formData.pincode).trim())) {
+      newErrors.pincode = "Pincode must be 6 digits";
+    }
+
+    // net_month_income
+    if (
+      formData.net_month_income === "" ||
+      formData.net_month_income === null ||
+      formData.net_month_income === undefined
+    ) {
+      newErrors.net_month_income = "Net monthly income is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  /* ------------------------------------------------------------------------ */
+  /*                             Modal helpers                                 */
+  /* ------------------------------------------------------------------------ */
+
+  const openModal = (title = "", message = "") => {
+    setModal({ open: true, title, message });
+  };
+
+  const closeModal = () => {
+    setModal({ open: false, title: "", message: "" });
+  };
+
+  /* ------------------------------------------------------------------------ */
+  /*                                API Call                                   */
+  /* ------------------------------------------------------------------------ */
+
+  /**
+   * handleSubmit
+   * Submits formData to ENQUIRY_API_URL via POST using axios.
+   *
+   * Flow:
+   * - Validate form
+   * - setIsLoading(true)
+   * - POST to server
+   * - On success: set apiResponse, set showForm(false), optionally open modal
+   * - On error: set apiError and open modal, keep the form visible
+   */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Local validation before network call
+    if (!validateForm()) {
+      // If validation fails, briefly open a small modal so user notices (optional)
+      openModal("Validation error", "Please fix the highlighted errors before submitting.");
+      return;
+    }
+
+    setIsLoading(true);
+    setApiError(null);
+
+    try {
+      // Send the form data directly as JSON — preserve the same field names the backend expects.
+      const response = await axios.post(ENQUIRY_API_URL, formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        timeout: 20000, // 20s timeout to avoid indefinite waiting
+      });
+
+      // On success, response.data should contain relevant payload (message, customer, eligible_banks, etc.)
+      setApiResponse(response.data);
+      setShowForm(false);
+
+      // Optionally show a confirmation modal (keeps UI consistent with earlier file)
+      if (response.data?.message) {
+        openModal("Application Submitted", response.data.message);
+      }
+    } catch (err) {
+      // Prefer structured server message if available
+      const serverMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.response?.data?.detail ||
+        err?.message ||
+        "Something went wrong. Please try again.";
+
+      setApiError(serverMessage);
+      openModal("Submission Error", serverMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /* ------------------------------------------------------------------------ */
+  /*                             Reset / Re-apply                              */
+  /* ------------------------------------------------------------------------ */
+
+  /**
+   * resetForm
+   * Restores component to initial state so user may re-apply
+   */
+  const resetForm = () => {
+    setShowForm(true);
+    setApiResponse(null);
+    setApiError(null);
+    setFormData({
+      full_name: "",
+      phone_number: "",
+      email_address: "",
+      pan_number: "",
+      date_of_birth: "",
+      current_city: "",
+      current_pincode: "",
+      net_income: "",
+    });
+    setErrors({});
+    setSubmittedInterests([]);
+    setLoadingInterest(null);
+  };
+
+  /* ------------------------------------------------------------------------ */
+  /*                         "Interested" bank action                           */
+  /* ------------------------------------------------------------------------ */
+
+  /**
+   * handleInterested
+   * Simulates a user clicking "Interested" for a specific bank/product.
+   * This function is intentionally local/simulated because no interest endpoint was provided.
+   *
+   * If you have an actual endpoint to call when a user clicks "Interested",
+   * replace the simulated timeout with axios.post(...) to that endpoint.
+   */
+  const handleInterested = (bank) => {
+    if (!bank) return;
+
+    const interestKey = `${bank.bank_id}-${bank.product_id}`;
+    if (submittedInterests.includes(interestKey)) return;
+
+    setLoadingInterest(interestKey);
+
+    // Simulate network delay
+    setTimeout(() => {
+      setSubmittedInterests((prev) => [...prev, interestKey]);
+      setLoadingInterest(null);
+      openModal("Interest Recorded", `Your interest for ${bank.bank_name} has been recorded. They will contact you soon.`);
+    }, 900);
+  };
+
+  /* -------------------------------------------------------------------------- */
+  /*                                 Render UI                                   */
+  /* -------------------------------------------------------------------------- */
+
+  return (
+    <div className="min-h-screen mt-10 bg-gray-50">
+      {/* ------------------------------------------------------------------ */}
+      {/* Hero Section */}
+      {/* ------------------------------------------------------------------ */}
+      <div
+        className="flex flex-col justify-center items-center w-full text-white bg-no-repeat bg-cover bg-center h-48 sm:h-64 md:h-80 lg:h-[400px]"
+        style={{
+          backgroundImage: `url(${pinkback})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: "400px",
+        }}
+      >
+        <div className="text-center m-4">
+          <h2 className="font-bold text-3xl">Apply Now</h2>
+          <p>Fill out the form below to secure your loan application.</p>
+          <p>
+            <NavLink to="/" className="text-red-800 hover:underline hover:text-red-600">
+              Home
+            </NavLink>
+            <span> </span>
+            <span>Business Loan</span>
+          </p>
+        </div>
+      </div>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Global Loader (overlay) */}
+      {/* ------------------------------------------------------------------ */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600" />
+            <p className="mt-4 text-lg font-medium text-gray-700">Processing your application...</p>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Modal (reusable) */}
+      {/* ------------------------------------------------------------------ */}
+      {modal.open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={closeModal}>
+          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {modal.title && <h3 className="text-xl font-bold mb-3 text-gray-900">{modal.title}</h3>}
+            <p className="text-gray-700 text-base">{modal.message}</p>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={closeModal}
+                className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Success / Application Result */}
+      {/* ------------------------------------------------------------------ */}
+      {apiResponse && !showForm && (
+        <div className="container max-w-6xl mx-auto py-5 px-4">
+          <div className="bg-white border my-10 border-gray-300 rounded-lg shadow-lg p-6 md:p-8">
+            {/* Success Header */}
+            <div className="text-center mb-8">
+              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+
+              <h2 className="text-3xl font-bold text-green-600 mb-2">Application Successful!</h2>
+              <p className="text-gray-600">{apiResponse.message || "Thank you — your application has been received."}</p>
+            </div>
+
+            {/* Customer Details */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Customer Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Full Name</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.full_name", formData.full_name)}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Email</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.email", formData.email)}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Phone</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.phone", formData.phone)}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">PAN</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pan", formData.pan)}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Date of Birth</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.dob", formData.dob)}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Age</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.age", "-") !== "-" ? `${safeGet(apiResponse, "customer.age", "-")} years` : "-"}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Employment Type</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.employment_type", "-")}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Net Monthly Salary</p>
+                  <p className="font-semibold text-gray-800">
+                    {(() => {
+                      const salary = safeGet(apiResponse, "customer.net_monthly_salary", safeGet(apiResponse, "customer.salary", formData.net_month_income));
+                      return salary === "-" || salary === undefined || salary === null || salary === ""
+                        ? "-"
+                        : formatCurrency(salary);
+                    })()}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">City</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.city", formData.city)}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Pincode</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pincode", formData.pincode)}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Department Name</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.departmentName", "-")}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Designation</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.designationName", "-")}</p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Company</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.companyName", "-")}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Eligible Banks */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Eligible Banks & Loan Offers</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {Array.isArray(apiResponse?.eligible_banks) && apiResponse.eligible_banks.length > 0 ? (
+                  apiResponse.eligible_banks.map((bank, index) => {
+                    const interestKey = `${bank.bank_id}-${bank.product_id}`;
+                    const alreadyInterested = submittedInterests.includes(interestKey);
+                    const isBtnLoading = loadingInterest === interestKey;
+
+                    return (
+                      <div
+                        key={index}
+                        className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-indigo-50"
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-bold text-red-800">{bank.bank_name}</h4>
+                          <span className="text-sm text-gray-600">{bank.product_name || "-"}</span>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Loan Amount</span>
+                            <span className="font-semibold text-green-600">
+                              {bank?.loan_amount_range ? (
+                                `₹${Number(bank.loan_amount_range.min || 0).toLocaleString()} - ₹${Number(bank.loan_amount_range.max || 0).toLocaleString()}`
+                              ) : bank?.estimated_max_loan ? (
+                                `Up to ₹${Number(bank.estimated_max_loan).toLocaleString()}`
+                              ) : (
+                                "-"
+                              )}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Rate of Interest</span>
+                            <span className="font-semibold">{bank.roi_range || (bank.interest_rate ? `${bank.interest_rate}%` : "-")}</span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleInterested(bank)}
+                          disabled={alreadyInterested || isBtnLoading}
+                          className={`w-full mt-4 flex items-center justify-center gap-2 ${alreadyInterested || isBtnLoading ? "bg-gray-400 cursor-not-allowed" : "bg-red-800 hover:bg-red-700"
+                            } text-white font-medium py-2 px-4 rounded-lg transition duration-200`}
+                        >
+                          {isBtnLoading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                              <span>Processing...</span>
+                            </>
+                          ) : alreadyInterested ? "Already Interested" : "Interested"}
+                        </button>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="col-span-1 md:col-span-2 text-gray-600">No eligible banks to show.</div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button onClick={resetForm} className="px-6 py-3 bg-red-800 hover:bg-red-600 text-white font-medium rounded-lg transition duration-200">
+                Apply for Another Loan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------ */}
+      {/* API Error Display (when submission fails but form remains)          */}
+      {/* ------------------------------------------------------------------ */}
+      {apiError && (
+        <div className="container max-w-4xl mx-auto py-5 px-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+            <div className="flex items-center">
+              <svg className="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+
+              <div>
+                <h3 className="text-lg font-semibold text-red-800">Application Error</h3>
+                <p className="text-red-700">{apiError}</p>
+              </div>
+            </div>
+
+            <button onClick={() => setApiError(null)} className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-200">
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+ 
+      {/* ------------------------------------------------------------------ */}
+      {/* Form Section (main)                                                */}
+      
+      {showForm && (
+        <div className="container max-w-4xl mx-auto py-5 px-4">
+          <div className="bg-white border my-10 border-gray-300 rounded-lg shadow-md p-4 md:p-8">
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Full Name */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="full_name"
+                    id="name"
+                    value={formData.full_name}
+                    onChange={handleChange}
+                    placeholder="Enter your full name"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.full_name ? "border-red-500" : "border-gray-300"
+                      }`}
+                    required
+                  />
+                  {errors.full_name && <p className="mt-1 text-sm text-red-600">{errors.full_name}</p>}
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    id="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="Enter phone number"
+                    maxLength="10"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.phone ? "border-red-500" : "border-gray-300"
+                      }`}
+                    required
+                  />
+                  {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter email"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.email ? "border-red-500" : "border-gray-300"
+                      }`}
+                    required
+                  />
+                  {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                </div>
+
+                {/* PAN */}
+                <div>
+                  <label htmlFor="pan" className="block text-sm font-medium text-gray-700 mb-1">
+                    PAN Number
+                  </label>
+                  <input
+                    type="text"
+                    name="pan"
+                    id="pan"
+                    value={formData.pan}
+                    onChange={handleChange}
+                    placeholder="Enter PAN Number"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.pan ? "border-red-500" : "border-gray-300"
+                      }`}
+                    required
+                  />
+                  {errors.pan && <p className="mt-1 text-sm text-red-600">{errors.pan}</p>}
+                </div>
+
+                {/* DOB */}
+                <div>
+                  <label htmlFor="dob" className="block text-sm font-medium text-gray-700 mb-1">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    name="dob"
+                    id="dob"
+                    value={formData.dob}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.dob ? "border-red-500" : "border-gray-300"
+                      }`}
+                    required
+                  />
+                  {errors.dob && <p className="mt-1 text-sm text-red-600">{errors.dob}</p>}
+                </div>
+
+                {/* Net Monthly Income */}
+                <div>
+                  <label htmlFor="net_month_income" className="block text-sm font-medium text-gray-700 mb-1">
+                    Net Monthly Income
+                  </label>
+                  <input
+                    type="number"
+                    name="net_month_income"
+                    id="net_month_income"
+                    value={formData.net_month_income}
+                    onChange={handleChange}
+                    placeholder="Enter net monthly income"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.net_month_income ? "border-red-500" : "border-gray-300"
+                      }`}
+                    required
+                  />
+                  {errors.net_month_income && <p className="mt-1 text-sm text-red-600">{errors.net_month_income}</p>}
+                </div>
+
+                {/* City */}
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                    Current City of Residence
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    id="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="Enter city"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.city ? "border-red-500" : "border-gray-300"
+                      }`}
+                    required
+                  />
+                  {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city}</p>}
+                </div>
+
+                {/* Pincode */}
+                <div>
+                  <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 mb-1">
+                    Current Pincode
+                  </label>
+                  <input
+                    type="text"
+                    name="pincode"
+                    id="pincode"
+                    value={formData.pincode}
+                    onChange={handleChange}
+                    placeholder="Enter pincode"
+                    maxLength="6"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.pincode ? "border-red-500" : "border-gray-300"
+                      }`}
+                    required
+                  />
+                  {errors.pincode && <p className="mt-1 text-sm text-red-600">{errors.pincode}</p>}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="mt-8">
+                <button type="submit" className="w-full bg-red-800 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+                  Submit
+                </button>
+              </div>
+
+              {/* Terms */}
+              <div className="mt-2 text-center text-sm">
+                <a href="#" className="text-gray-500 hover:text-red-600">Terms and Conditions</a>
+                <span className="mx-2 text-gray-300">|</span>
+                <a href="#" className="text-gray-500 hover:text-red-600">Privacy Policy</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Footer - keep as imported */}
+    <Footer />
+    </div>
+  );
+};
+
+export default Credit;

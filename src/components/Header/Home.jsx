@@ -11,9 +11,12 @@ import OfferManagement from "../../pages/choose_card/Offermanagement";
 function Home() {
   const productsRef = useRef(null);
 
-  const scrollToProducts = () => {
-    productsRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+ const scrollToProducts = () => {
+  window.scrollBy({
+    top: 350, // 🔹 adjust (100–300) for subtle movement
+    behavior: "smooth",
+  });
+};
 
   return (
     <>
