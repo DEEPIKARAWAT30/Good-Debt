@@ -34,9 +34,11 @@ const Loan = () => {
   const [submittedInterests, setSubmittedInterests] = useState([]); // track (bankId-productId)
   const [modal, setModal] = useState({ open: false, title: '', message: '' });
   const [loadingInterest, setLoadingInterest] = useState(null); // track which bank is loading
-
+const [interestModal, setInterestModal] = useState({ open: false, bank: null });
   const openModal = (message, title = '') => setModal({ open: true, title, message });
   const closeModal = () => setModal((prev) => ({ ...prev, open: false }));
+  const closeInterestModal = () => setInterestModal({ open: false, bank: null });
+
 
   const handleChange = (e) => {
     const { name, value, type } = e.target; 
@@ -99,30 +101,50 @@ const Loan = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-      setIsLoading(true);
-      setApiError(null);
-      
-      axios.post("https://bank-project-1-x3bi.onrender.com/v1/api/customer/create-or-eligible/", formData, {
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        }
-      })
-        .then((res) => {
-          console.log(res)
-          setApiResponse(res.data);
-          setShowForm(false);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          setApiError(err.response?.data?.message || 'An error occurred while processing your request');
-          setIsLoading(false);
-          console.log(err)
-        });
-    }
-  };
+  e.preventDefault();
+  if (validateForm()) {
+    setIsLoading(true);
+    setApiError(null);
+
+    // Map formData to backend payload keys
+    const payload = {
+      full_name: formData.full_name,
+      phone_number: formData.phone, // changed key
+      email_address: formData.email, // changed key
+      pan_number: formData.pan, // changed key
+      date_of_birth: formData.dob, // changed key
+      employee_type: formData.employment_type, // changed key
+      net_income: formData.salary, // changed key
+      current_city: formData.city, // changed key
+      current_pincode: formData.pincode, // changed key
+      loan_for: 'personalLoan', // you can use a select/dropdown if needed
+      departmentName: formData.departmentName,
+      designationName: formData.designationName,
+      companyName: formData.companyName,
+      designation: formData.designation,
+      // existing_loan: formData.existing_loan
+    };
+
+    axios.post(`https://good-debt.onrender.com/api/enquiry/`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      }
+    })
+    .then((res) => {
+      console.log(res)
+      setApiResponse(res.data);
+      setShowForm(false);
+      setIsLoading(false);
+    })
+    .catch((err) => {
+      setApiError(err.response?.data?.message || 'An error occurred while processing your request');
+      setIsLoading(false);
+      console.log(err)
+    });
+  }
+};
+
 
   const handleInterested = async (bank) => {
     try {
@@ -254,144 +276,193 @@ const Loan = () => {
         </div>
       )}
 
+         {interestModal.open && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md transform animate-slideUp">
+
+      {/* Title */}
+      <h3 className="text-2xl font-bold text-gray-800 text-center mb-3">
+        Choose Your Preferred Option
+      </h3>
+
+      {/* Description */}
+      <p className="text-gray-600 text-center mb-6 leading-relaxed">
+        You can continue with <span className="font-semibold">Good Debt</span> 
+         for expert guidance, or directly visit the official bank website.  
+        Select the option that suits you best.
+      </p>
+
+      {/* Buttons */}
+      <div className="flex flex-col gap-4">
+
+        {/* Good Debt Button */}
+        <button
+          onClick={() => {
+            closeInterestModal();
+            openModal(
+              "Good Debt",
+              "Thank you for your interest! Our Good Debt team will reach out shortly to guide you with the best loan options."
+            );
+          }}
+          className="w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white font-medium shadow-lg transition-all"
+        >
+          Continue with Good Debt
+        </button>
+
+        {/* Bank Button */}
+        <button
+          onClick={() => {
+            closeInterestModal();
+            openModal(
+              interestModal.bank.bank_name,
+              <span>
+                You are being redirected to the official page of{" "}
+                <span className="font-semibold">{interestModal.bank.bank_name}</span>.
+                <br />
+                <a
+                  href={interestModal.bank.bank_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline font-medium"
+                >
+                  Visit Bank Website
+                </a>
+              </span>
+            );
+          }}
+          className="w-full py-3 px-4 rounded-xl bg-white hover:bg-red-900 hover:text-white text-black border-2 border-red-800 font-medium shadow-lg transition-all"
+        >
+          Visit Bank Website
+        </button>
+
+        {/* Cancel Button */}
+        <button
+          onClick={closeInterestModal}
+          className="w-full py-3 px-4 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all"
+        >
+          Cancel
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
+
       {/* Success Response Card */}
       {apiResponse && !showForm && (
-        <div className="container max-w-6xl mx-auto py-5 px-4">
-          <div className="bg-white border my-10 border-gray-300 rounded-lg shadow-lg p-6 md:p-8">
-            {/* Success Header */}
-            <div className="text-center mb-8">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <h2 className="text-3xl font-bold text-green-600 mb-2">Application Successful!</h2>
-              <p className="text-gray-600">{apiResponse.message}</p>
-            </div>
+  <div className="container max-w-6xl mx-auto py-5 px-4">
+    <div className="bg-white border my-10 border-gray-300 rounded-lg shadow-lg p-6 md:p-8">
 
-            {/* Customer Details */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Customer Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Full Name</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.full_name}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Email</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.email}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Phone</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.phone}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">PAN</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.pan || formData.pan}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Date of Birth</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.dob || formData.dob}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Age</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.age} years</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Employment Type</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.employment_type || formData.employment_type}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Net Monthly Salary</p>
-                  <p className="font-semibold text-gray-800">₹{(apiResponse.customer.net_monthly_salary ?? apiResponse.customer.salary ?? formData.salary)?.toLocaleString?.() || (apiResponse.customer.net_monthly_salary ?? apiResponse.customer.salary ?? formData.salary)}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">City</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.city || formData.city}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Pincode</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.pincode || formData.pincode}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Department Name</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.departmentName || formData.departmentName || '-'}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Designation</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.designationName || formData.designationName || '-'}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Company</p>
-                  <p className="font-semibold text-gray-800">{apiResponse.customer.companyName || formData.companyName || '-'}</p>
-                </div>
-              </div>
-            </div>
+      {/* Success Header */}
+      <div className="text-center mb-8">
+        <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h2 className="text-3xl font-bold text-green-600 mb-2">Application Successful!</h2>
+        <p className="text-gray-600">{apiResponse.message}</p>
+      </div>
 
-            {/* Eligible Banks */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Eligible Banks & Loan Offers</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {apiResponse.eligible_banks.map((bank, index) => {
-                  const interestKey = `${bank.bank_id}-${bank.product_id}`;
-                  const alreadyInterested = submittedInterests.includes(interestKey);
-                  const isLoading = loadingInterest === interestKey;
-                  return (
-                  <div key={index} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-indigo-50">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-lg font-bold text-red-800">{bank.bank_name}</h4>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Loan Amount</span>
-                        <span className="font-semibold text-green-600">
-                          {bank?.loan_amount_range ? (
-                            `₹${Number(bank.loan_amount_range.min || 0).toLocaleString()} - ₹${Number(bank.loan_amount_range.max || 0).toLocaleString()}`
-                          ) : (
-                            bank?.estimated_max_loan ? `Up to ₹${Number(bank.estimated_max_loan).toLocaleString()}` : '-'
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Rate of Interest</span>
-                        <span className="font-semibold">{bank.roi_range || (bank.interest_rate ? `${bank.interest_rate}%` : '-')}</span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => handleInterested(bank)} 
-                      disabled={alreadyInterested || isLoading} 
-                      className={`w-full mt-4 flex items-center justify-center gap-2 ${alreadyInterested || isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-800 hover:bg-red-700'} text-white font-medium py-2 px-4 rounded-lg transition duration-200`}
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                          <span>Processing...</span>
-                        </>
-                      ) : alreadyInterested ? 'Already Interested' : 'Interested'}
-                    </button>
-                    {/* <button className="w-full mt-4 bg-red-800 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
-                      Apply Now
-                    </button> */}
-                  </div>
-                );})}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={resetForm}
-                className="px-6 py-3 bg-red-800 hover:bg-red-600 text-white font-medium rounded-lg transition duration-200"
-              >
-                Apply for Another Loan
-              </button>
-              {/* <button className="px -6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition duration-200">
-                Download Application
-              </button> */}
-            </div>
+      {/* Customer Details */}
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Customer Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Full Name</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.full_name}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Email</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.email_address}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Phone</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.phone_number}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">PAN</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.pan_number}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Date of Birth</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.date_of_birth}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Age</p>
+            <p className="font-semibold text-gray-800">{apiResponse.age} years</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Employment Type</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.employee_type}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Net Monthly Salary</p>
+            <p className="font-semibold text-gray-800">₹{Number(apiResponse.enquiry_details.net_income).toLocaleString()}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">City</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.current_city}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Pincode</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.current_pincode}</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600">Loan For</p>
+            <p className="font-semibold text-gray-800">{apiResponse.enquiry_details.loan_for}</p>
           </div>
         </div>
-      )}
+      </div>
+
+     
+     {/* Eligible Banks */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  {apiResponse.related_bank_details.map((bank, index) => {
+    const interestKey = `${bank.id}`; // you can adjust if you have product_id
+    const alreadyInterested = submittedInterests.includes(interestKey);
+    const isLoading = loadingInterest === interestKey;
+    return (
+      <div key={index} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-lg font-bold text-red-800">{bank.bank_name}</h4>
+        </div>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Pincode</span>
+            <span className="font-semibold text-green-600">{bank.pincode}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Loan Types</span>
+            <span className="font-semibold">{bank.loan_types}</span>
+          </div>
+        </div>
+        <button
+          onClick={() => setInterestModal({ open: true, bank })}
+          className="w-full mt-4 bg-red-800 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
+        >
+          Apply Now
+        </button>
+      </div>
+    );
+  })}
+</div>
+
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <button
+          onClick={resetForm}
+          className="px-6 py-3 my-2 bg-red-800 hover:bg-red-600 text-white font-medium rounded-lg transition duration-200"
+        >
+          Apply for Another Loan
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
 
       {/* Error Display */}
       {apiError && (
