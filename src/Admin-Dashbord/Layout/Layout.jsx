@@ -42,7 +42,7 @@ export default function Layout() {
           <SidebarLink to="/admin/dashboard" icon={<Home />} text="Dashboard" />
           {/* <SidebarLink to="/admin/dashboard/banks" icon={<CreditCard />} text="Banks" /> */}
           {/* <SidebarLink to="/admin/dashboard/add-product" icon={<Box />} text="Loan PL" /> */}
-          <SidebarLink to="/admin/dashboard/management" icon={<BadgePercent />} text="Manage Offers" />
+          {/* <SidebarLink to="/admin/dashboard/management" icon={<BadgePercent />} text="Manage Offers" /> */}
           <SidebarLink to="/admin/dashboard/requests" icon={<MailOpen />} text="Enquiries" />
           {/* <SidebarLink to="/admin/dashboard/intrested" icon={<Users />} text="Interested Users" /> */}
 

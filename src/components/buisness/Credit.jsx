@@ -193,6 +193,36 @@ export default function Credit() {
   const closeInterestModal = () => {
     setInterestModal({ open: false, bank: null });
   };
+
+
+
+  const submitBankInterest = async (bank_id, process_by) => {
+    try {
+      const enquiry_id = apiResponse.enquiry_details?.enquiry_id || apiResponse.enquiry_details?.id;
+
+      if (!enquiry_id) {
+        openModal("Enquiry ID not found. Please submit the form first.", "Error");
+        return;
+      }
+
+      const payload = {
+        bank_id: bank_id,
+        enquiry_id: enquiry_id,
+        process_by: process_by,   // "good_debt" or "self"
+      };
+
+      await axios.post("https://good-debt.onrender.com/api/bank-interest/", payload, {
+        headers: { "Content-Type": "application/json" }
+      });
+
+      console.log("Interest API submitted:", payload);
+
+    } catch (error) {
+      console.log(error);
+      openModal("Failed to submit interest. Try again.", "Error");
+    }
+  };
+
   // Reset form to initial state so user can re-apply
   const resetForm = () => {
     setShowForm(true);
@@ -261,69 +291,66 @@ export default function Credit() {
         </div>
       )}
 
-      {/* Modal */}
-     {modal.open && (
-  <div
-    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-    onClick={closeModal}
-  >
-    <div
-      className="bg-white rounded-lg p-6 w-11/12 max-w-md shadow-2xl"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {modal.title && (
-        <h3 className="text-xl font-bold mb-3 text-gray-900">{modal.title}</h3>
+      {modal.open && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white rounded-lg p-6 w-11/12 max-w-md shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {modal.title && (
+              <h3 className="text-xl font-bold mb-3 text-gray-900">{modal.title}</h3>
+            )}
+
+            <p className="text-gray-700 text-base">{modal.message}</p>
+
+            {/* Buttons */}
+            <div className="mt-6 flex justify-end gap-3">
+
+              {/* Cancel Button */}
+              <button
+                onClick={closeModal}
+                className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
+              >
+                Cancel
+              </button>
+
+              {/* OK Button */}
+              <button
+                onClick={closeModal}
+                className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+              >
+                OK
+              </button>
+
+            </div>
+          </div>
+        </div>
       )}
 
-      <p className="text-gray-700 text-base">{modal.message}</p>
+      {interestModal.open && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md transform animate-slideUp">
 
-      {/* Buttons */}
-      <div className="mt-6 flex justify-end gap-3">
+            {/* Title */}
+            <h3 className="text-2xl font-bold text-gray-800 text-center mb-3">
+              Choose Your Preferred Option
+            </h3>
 
-        {/* Cancel Button */}
-        <button
-          onClick={closeModal}
-          className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
-        >
-          Cancel
-        </button>
+            {/* Description */}
+            <p className="text-gray-600 text-center mb-6 leading-relaxed">
+              You can continue with <span className="font-semibold">Good Debt</span>
+              for expert guidance, or directly visit the official bank website.
+              Select the option that suits you best.
+            </p>
 
-        {/* OK Button */}
-        <button
-          onClick={closeModal}
-          className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
-        >
-          OK
-        </button>
+            {/* Buttons */}
+            <div className="flex flex-col gap-4">
 
-      </div>
-    </div>
-  </div>
-)}
-
-
-
-     {interestModal.open && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md transform animate-slideUp">
-
-      {/* Title */}
-      <h3 className="text-2xl font-bold text-gray-800 text-center mb-3">
-        Choose Your Preferred Option
-      </h3>
-
-      {/* Description */}
-      <p className="text-gray-600 text-center mb-6 leading-relaxed">
-        You can continue with <span className="font-semibold">Good Debt</span> 
-         for expert guidance, or directly visit the official bank website.  
-        Select the option that suits you best.
-      </p>
-
-      {/* Buttons */}
-      <div className="flex flex-col gap-4">
-
-        {/* Good Debt Button */}
-        <button
+              {/* Good Debt Button */}
+              {/* <button
           onClick={() => {
             closeInterestModal();
             openModal(
@@ -334,46 +361,68 @@ export default function Credit() {
           className="w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white font-medium shadow-lg transition-all"
         >
           Continue with Good Debt
-        </button>
+        </button> */}
 
-        {/* Bank Button */}
-        <button
-          onClick={() => {
-            closeInterestModal();
-            openModal(
-              interestModal.bank.bank_name,
-              <span>
-                You are being redirected to the official page of{" "}
-                <span className="font-semibold">{interestModal.bank.bank_name}</span>.
-                <br />
-                <a
-                  href={interestModal.bank.bank_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline font-medium"
-                >
-                  Visit Bank Website
-                </a>
-              </span>
-            );
-          }}
-          className="w-full py-3 px-4 rounded-xl bg-white hover:bg-red-900 hover:text-white text-black border-2 border-red-800 font-medium shadow-lg transition-all"
-        >
-          Visit Bank Website
-        </button>
+              <button
+                onClick={async () => {
+                  await submitBankInterest(interestModal.bank.id, "good_debt");
+                  closeInterestModal();
+                  openModal(
+                    "Thank you for your interest! Our Good Debt team will reach out shortly to guide you with the best loan options.",
+                    "Good Debt"
+                  );
+                }}
+                className="w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white ..."
+              >
+                Continue with Good Debt
+              </button>
 
-        {/* Cancel Button */}
-        <button
-          onClick={closeInterestModal}
-          className="w-full py-3 px-4 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all"
-        >
-          Cancel
-        </button>
 
-      </div>
-    </div>
-  </div>
-)}
+              {/* Bank Button */}
+              <button
+                onClick={async () => {
+                  // API call first
+                  await submitBankInterest(interestModal.bank.id, "bank");
+
+                  // Close current interest modal
+                  closeInterestModal();
+
+                  // Open your existing modal with title & link
+                  openModal(
+                    interestModal.bank.bank_name,
+                    <span>
+                      You are being redirected to the official page of{" "}
+                      <span className="font-semibold">{interestModal.bank.bank_name}</span>.
+                      <br />
+                      <a
+                        href={interestModal.bank.bank_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline font-medium"
+                      >
+                        Visit Bank Website
+                      </a>
+                    </span>
+                  );
+                }}
+                className="w-full py-3 px-4 rounded-xl bg-white hover:bg-red-900 hover:text-white text-black border-2 border-red-800 font-medium shadow-lg transition-all"
+              >
+                Visit Bank Website
+              </button>
+
+
+              {/* Cancel Button */}
+              <button
+                onClick={closeInterestModal}
+                className="w-full py-3 px-4 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all"
+              >
+                Cancel
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* Success / Application Result */}
@@ -388,7 +437,7 @@ export default function Credit() {
               </div>
 
               <h2 className="text-3xl font-bold text-green-600 mb-2">Application Successful!</h2>
-                     <p className="text-gray-600">Enquiry created successfully for <span className='font-bold'>Buisness Loan</span></p>
+              <p className="text-gray-600">Enquiry created successfully for <span className='font-bold'>Buisness Loan</span></p>
             </div>
 
             {/* Customer Details */}
@@ -460,25 +509,38 @@ export default function Credit() {
                     const showFullDetails = bank.city !== "Unknown" && bank.state !== "Unknown";
 
                     return (
-                     <div
-  key={index}
-  className="border border-gray-200 rounded-lg p-4 sm:p-5 hover:shadow-md transition-shadow
+                      <div
+                        key={index}
+                        className="border border-gray-200 rounded-lg p-4 sm:p-5 hover:shadow-md transition-shadow
              bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col justify-between
              min-h-[170px]"
->
-  <div className="flex items-center justify-between mb-2 sm:mb-3">
-    <h4 className="text-md sm:text-lg font-semibold text-red-800 truncate">
-      {bank.bank_name}
-    </h4>
-    <span className="text-xs sm:text-sm text-gray-600">{bank.pincode}</span>
-  </div>
+                      >
+                        <div className="flex items-center justify-between mb-2 sm:mb-3">
+                          <h4 className="text-md sm:text-lg font-semibold text-red-800 truncate">
+                            {bank.bank_name}
+                          </h4>
+                          <span className="text-xs sm:text-sm text-gray-600">{bank.pincode}</span>
+                        </div>
 
-  <button
-    onClick={() => openInterestModal(bank)}
-    className="w-md mt-3 py-2 text-sm sm:text-base bg-red-800 hover:bg-red-700 text-white font-medium rounded-lg transition duration-200"
-  >
-    Interested
-  </button>
+                        <button
+                          onClick={() => openInterestModal(bank)}
+                          className="
+    w-full             
+    sm:w-auto            
+    px-4 py-2            
+    mt-3
+    text-sm sm:text-base /* Responsive text size */
+    bg-red-800 
+    hover:bg-red-700 
+    text-white 
+    font-medium 
+    rounded-lg 
+    transition 
+    duration-200
+  "
+                        >
+                          Interested
+                        </button>
 
 
 

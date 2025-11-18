@@ -192,6 +192,34 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
     }
   };
 
+  const submitBankInterest = async (bank_id, process_by) => {
+  try {
+    const enquiry_id = apiResponse.enquiry_details?.enquiry_id || apiResponse.enquiry_details?.id;
+
+    if (!enquiry_id) {
+      openModal("Enquiry ID not found. Please submit the form first.", "Error");
+      return;
+    }
+
+    const payload = {
+      bank_id: bank_id,
+      enquiry_id: enquiry_id,
+      process_by: process_by,   // "good_debt" or "self"
+    };
+
+    await axios.post("https://good-debt.onrender.com/api/bank-interest/", payload, {
+      headers: { "Content-Type": "application/json" }
+    });
+
+    console.log("Interest API submitted:", payload);
+
+  } catch (error) {
+    console.log(error);
+    openModal("Failed to submit interest. Try again.", "Error");
+  }
+};
+
+
   const resetForm = () => {
     setShowForm(true);
     setApiResponse(null);
@@ -321,7 +349,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
       <div className="flex flex-col gap-4">
 
         {/* Good Debt Button */}
-        <button
+        {/* <button
           onClick={() => {
             closeInterestModal();
             openModal(
@@ -332,33 +360,55 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
           className="w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white font-medium shadow-lg transition-all"
         >
           Continue with Good Debt
-        </button>
+        </button> */}
+
+        <button
+  onClick={async () => {
+    await submitBankInterest(interestModal.bank.id, "good_debt");
+    closeInterestModal();
+    openModal(
+      "Thank you for your interest! Our Good Debt team will reach out shortly to guide you with the best loan options.",
+      "Good Debt"
+    );
+  }}
+  className="w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white ..."
+>
+  Continue with Good Debt
+</button>
+
 
         {/* Bank Button */}
-        <button
-          onClick={() => {
-            closeInterestModal();
-            openModal(
-              interestModal.bank.bank_name,
-              <span>
-                You are being redirected to the official page of{" "}
-                <span className="font-semibold">{interestModal.bank.bank_name}</span>.
-                <br />
-                <a
-                  href={interestModal.bank.bank_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline font-medium"
-                >
-                  Visit Bank Website
-                </a>
-              </span>
-            );
-          }}
-          className="w-full py-3 px-4 rounded-xl bg-white hover:bg-red-900 hover:text-white text-black border-2 border-red-800 font-medium shadow-lg transition-all"
+       <button
+  onClick={async () => {
+    // API call first
+    await submitBankInterest(interestModal.bank.id, "bank");
+
+    // Close current interest modal
+    closeInterestModal();
+
+    // Open your existing modal with title & link
+    openModal(
+      interestModal.bank.bank_name,
+      <span>
+        You are being redirected to the official page of{" "}
+        <span className="font-semibold">{interestModal.bank.bank_name}</span>.
+        <br />
+        <a
+          href={interestModal.bank.bank_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline font-medium"
         >
           Visit Bank Website
-        </button>
+        </a>
+      </span>
+    );
+  }}
+  className="w-full py-3 px-4 rounded-xl bg-white hover:bg-red-900 hover:text-white text-black border-2 border-red-800 font-medium shadow-lg transition-all"
+>
+  Visit Bank Website
+</button>
+
 
         {/* Cancel Button */}
         <button
@@ -467,7 +517,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
           onClick={() => setInterestModal({ open: true, bank })}
           className="w-full mt-4 bg-red-800 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
         >
-          Apply Now
+         Interested
         </button>
       </div>
     );
