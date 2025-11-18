@@ -66,7 +66,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="banks" element={<BankManagement />} />
           <Route path="product/:id" element={<Product />} />
-          <Route path="add-product" element={<AddProduct />} />
+          {/* <Route path="add-product" element={<AddProduct />} /> */}
           <Route path="management" element={<Management />} />
            <Route path="intrested" element={<InterestedUsers />} />
           <Route path="agents" element={<Agents />} />

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import Footer from "../../pages/About/Footer";
 import pinkback from "../../assets/banner/pink-back.jpg";
@@ -7,7 +8,7 @@ import pinkback from "../../assets/banner/pink-back.jpg";
 // API constant (use exact URL requested)
 const ENQUIRY_API_URL = "https://good-debt.onrender.com/api/enquiry/";
 
-// Helpers ------------------------------------------------------------------
+// Helpers ---------------
 const safeToNumber = (v) => {
   if (v === "" || v === null || v === undefined) return v;
   const n = Number(v);
@@ -35,6 +36,7 @@ const safeGet = (obj, path, fallback = "-") => {
 // Component ----------------------------------------------------------------
 export default function Credit() {
   // Use field names that match backend payload exactly
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     full_name: "",
     phone_number: "",
@@ -211,6 +213,7 @@ export default function Credit() {
     setErrors({});
     setSubmittedInterests([]);
     setLoadingInterest(null);
+    navigate('/');
   };
 
   // Handle "Interested" action for eligible banks
@@ -259,22 +262,45 @@ export default function Credit() {
       )}
 
       {/* Modal */}
-      {modal.open && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={closeModal}>
-          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            {modal.title && <h3 className="text-xl font-bold mb-3 text-gray-900">{modal.title}</h3>}
-            <p className="text-gray-700 text-base">{modal.message}</p>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={closeModal}
-                className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
+     {modal.open && (
+  <div
+    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    onClick={closeModal}
+  >
+    <div
+      className="bg-white rounded-lg p-6 w-11/12 max-w-md shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {modal.title && (
+        <h3 className="text-xl font-bold mb-3 text-gray-900">{modal.title}</h3>
       )}
+
+      <p className="text-gray-700 text-base">{modal.message}</p>
+
+      {/* Buttons */}
+      <div className="mt-6 flex justify-end gap-3">
+
+        {/* Cancel Button */}
+        <button
+          onClick={closeModal}
+          className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
+        >
+          Cancel
+        </button>
+
+        {/* OK Button */}
+        <button
+          onClick={closeModal}
+          className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+        >
+          OK
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
+
 
 
      {interestModal.open && (
@@ -362,7 +388,7 @@ export default function Credit() {
               </div>
 
               <h2 className="text-3xl font-bold text-green-600 mb-2">Application Successful!</h2>
-              <p className="text-gray-600">{apiResponse.message || "Thank you — your application has been received."}</p>
+                     <p className="text-gray-600">Enquiry created successfully for <span className='font-bold'>Buisness Loan</span></p>
             </div>
 
             {/* Customer Details */}

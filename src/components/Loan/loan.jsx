@@ -1,11 +1,13 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../../pages/About/Footer';
 import { NavLink } from 'react-router-dom';
 import pinkback from '../../assets/banner/pink-back.jpg';
 
 const Loan = () => {
   const BASE_URL = 'https://bank-project-1-x3bi.onrender.com';
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
 
     full_name: '',
@@ -214,6 +216,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
     setEmployment_type('');
     setShowExistingLoanFields(false);
     setErrors({});
+    navigate('/');
   };
 
 
@@ -260,21 +263,43 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
       )}
 
       {modal.open && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={closeModal}>
-          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            {modal.title && <h3 className="text-xl font-bold mb-3 text-gray-900">{modal.title}</h3>}
-            <p className="text-gray-700 text-base">{modal.message}</p>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={closeModal}
-                className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
+  <div
+    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    onClick={closeModal}
+  >
+    <div
+      className="bg-white rounded-lg p-6 w-11/12 max-w-md shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {modal.title && (
+        <h3 className="text-xl font-bold mb-3 text-gray-900">{modal.title}</h3>
       )}
+
+      <p className="text-gray-700 text-base">{modal.message}</p>
+
+      {/* Buttons */}
+      <div className="mt-6 flex justify-end gap-3">
+
+        {/* Cancel Button */}
+        <button
+          onClick={closeModal}
+          className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
+        >
+          Cancel
+        </button>
+
+        {/* OK Button */}
+        <button
+          onClick={closeModal}
+          className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+        >
+          OK
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
 
          {interestModal.open && (
   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
@@ -361,7 +386,8 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
           </svg>
         </div>
         <h2 className="text-3xl font-bold text-green-600 mb-2">Application Successful!</h2>
-        <p className="text-gray-600">{apiResponse.message}</p>
+        {/* <p className="text-gray-600">{apiResponse.message}</p> */}
+         <p className="text-gray-600">Enquiry created successfully for <span className='font-bold'>Personal Loan</span></p>
       </div>
 
       {/* Customer Details */}

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Eye } from "lucide-react";
 import axios from "axios";
 
-const BASE_URL = "https://bank-project-1-x3bi.onrender.com/v1/api/get-all-eligiblity-checks/";
-
+// const BASE_URL = "https://bank-project-1-x3bi.onrender.com/v1/api/get-all-eligiblity-checks/";
+const BASE_URL = "https://good-debt.onrender.com/api/enquiry/";
 function RequestsPage() {
   const [requestsData, setRequestsData] = useState([]);
   const [search, setSearch] = useState("");
@@ -22,8 +22,8 @@ function RequestsPage() {
       const response = await axios.get(url);
       console.log("API Response:", response.data);
 
-      const customers = Array.isArray(response.data.results)
-        ? response.data.results.map((customer) => {
+      const customers = Array.isArray(response.data.data)
+        ? response.data.data.map((customer) => {
             const dateField =
               customer.last_eligiblity_check ||
               customer.last_eligibility_check ||
@@ -74,13 +74,12 @@ function RequestsPage() {
       req.status?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case "Eligible":
-        return "bg-green-600 text-white";
-      case "Not Eligible":
-        return "bg-red-600 text-white";
-      case "In Review":
+  const getStatusStyle = (Loan) => {
+    switch (Loan) {
+      case "PL":
+        return " text-[#1e9e27]";
+      case " BL":
+        return " text-[#9e1e27]";
       default:
         return "bg-[#9e1e27] text-white";
     }
@@ -114,7 +113,7 @@ function RequestsPage() {
               <th className="px-6 py-3 border-b">Email</th>
               <th className="px-6 py-3 border-b">Phone</th>
               <th className="px-6 py-3 border-b">Employment Type</th>
-              <th className="px-6 py-3 border-b">Status</th>
+              <th className="px-6 py-3 border-b">Loan</th>
               <th className="px-6 py-3 border-b">Date</th>
               <th className="px-6 py-3 border-b text-center">Actions</th>
             </tr>
@@ -123,19 +122,19 @@ function RequestsPage() {
             {filteredRequests.map((req) => (
               <tr key={req.id || req.email} className="border-b hover:bg-gray-50 transition">
                 <td className="px-6 py-4 font-medium text-gray-800">{req.full_name}</td>
-                <td className="px-6 py-4">{req.email}</td>
-                <td className="px-6 py-4">{req.phone}</td>
-                <td className="px-6 py-4">{req.employment_type}</td>
+                <td className="px-6 py-4">{req.email_address}</td>
+                <td className="px-6 py-4">{req.phone_number}</td>
+                <td className="px-6 py-4">{req.employee_type}</td>
                 <td className="px-6 py-4">
                   <span
-                    className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm ${getStatusStyle(
+                    className={`inline-flex items-center justify-center px-4 py-2 rounded-full text-sm ${getStatusStyle(
                       req.status
                     )}`}
                   >
-                    {req.status}
+                    {req.loan_for}
                   </span>
                 </td>
-                <td className="px-6 py-4">{req.date}</td>
+                <td className="px-6 py-4">{req.created_at}</td>
                 <td className="px-6 py-4 text-center flex justify-center">
                   <button
                     className="p-2 rounded-md bg-gray-100 hover:bg-gray-200 transition"
