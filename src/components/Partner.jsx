@@ -24,7 +24,7 @@ function Partner({ scrollToProducts }) {
               onClick={scrollToProducts}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-red-900 text-white px-6 py-3 rounded-md hover:bg-red-500 transition"
+              className=" cursor-pointer bg-red-900 text-white px-6 py-3 rounded-md hover:bg-red-500 transition"
             >
               Get Instant Loan
             </motion.button>

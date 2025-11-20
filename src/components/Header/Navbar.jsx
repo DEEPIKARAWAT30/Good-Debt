@@ -83,32 +83,40 @@ function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        {mobileOpen && (
-          <div className="md:hidden bg-white shadow-md px-6 sm:py-2 py-2 sm:space-y-2 text-sm">
-            {/* <NavLink to={"/About"} onClick={() => setMobileOpen(false)}>
-              <h1 className="cursor-pointer hover:text-red-600 py-1">About</h1>
-            </NavLink> */}
-            <NavLink to={"/Contact"} onClick={() => setMobileOpen(false)}>
-              <h1 className="cursor-pointer hover:text-red-600 py-1">Contact</h1>
-            </NavLink>
-            {menuData.map((menu, index) => (
-              <MobileNavItem
-                key={index}
-                item={menu}
-                setMobileOpen={setMobileOpen}
-              />
-            ))}
-            <button
-              onClick={() => {
-                setIsOpen(true);
-                setMobileOpen(false);
-              }}
-              className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg shadow-md transition-all"
-            >
-              Apply Now
-            </button>
-          </div>
-        )}
+      {/* Mobile Menu */}
+{mobileOpen && (
+  <div className="md:hidden bg-white shadow-md px-6 sm:py-2 py-2 sm:space-y-2 text-sm">
+
+    {/* Contact */}
+    <NavLink to={"/Contact"} onClick={() => setMobileOpen(false)}>
+      <h1 className="cursor-pointer hover:text-red-600 py-1">Contact</h1>
+    </NavLink>
+
+    {/* Commented out menuData items for future use */}
+    {/*
+    {menuData.map((menu, index) => (
+      <MobileNavItem
+        key={index}
+        item={menu}
+        setMobileOpen={setMobileOpen}
+      />
+    ))}
+    */}
+
+    {/* Apply Now */}
+    <button
+      onClick={() => {
+        setIsOpen(true);
+        setMobileOpen(false);
+      }}
+      className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg shadow-md transition-all"
+    >
+      Apply Now
+    </button>
+
+  </div>
+)}
+
       </nav>
 
       {/* Page Content */}

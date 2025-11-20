@@ -10,7 +10,7 @@ import FOOTER_LOGO from "../assets/logo/logos-dark-transparent.jpeg";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#9E1E27] text-white pt-10 pb-6">
+    <footer className="bg-[#9E1E27]! text-white pt-10 pb-6">
       <div className="max-w-7xl mx-auto px-4">
         
         {/* Grid Layout */}
@@ -36,10 +36,10 @@ const Footer = () => {
             <h5 className="mb-3  font-semibold text-lg">Services</h5>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-white/90 text-sm hover:text-white">Credit Card</Link>
+                <Link to="/buisness-loan-eligibility" className="text-white/90 text-sm hover:text-white">Buisness Loan</Link>
               </li>
               <li>
-                <Link to="/loan-services" className="text-white/90 text-sm hover:text-white">Loan Services</Link>
+                <Link to="/loan-eligibility" className="text-white/90 text-sm hover:text-white">Personal Loan</Link>
               </li>
             </ul>
           </div>
@@ -49,11 +49,11 @@ const Footer = () => {
             <h5 className="mb-3 font-semibold text-lg">Quick Links</h5>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="text-white/90 hover:text-white">Home</Link></li>
-              <li><Link to="/about" className="text-white/90 hover:text-white">About Us</Link></li>
-              <li><Link to="/faqs" className="text-white/90 hover:text-white">FAQs</Link></li>
+              {/* <li><Link to="/about" className="text-white/90 hover:text-white">About Us</Link></li> */}
+              {/* <li><Link to="/faqs" className="text-white/90 hover:text-white">FAQs</Link></li> */}
               <li><Link to="/contact" className="text-white/90 hover:text-white">Contact</Link></li>
-              <li><Link to="/become-a-partner" className="text-white/90 hover:text-white">Become a Partner</Link></li>
-              <li><Link to="/privacy" className="text-white/90 hover:text-white">Privacy Policy</Link></li>
+              {/* <li><Link to="/become-a-partner" className="text-white/90 hover:text-white">Become a Partner</Link></li> */}
+              {/* <li><Link to="/privacy" className="text-white/90 hover:text-white">Privacy Policy</Link></li> */}
             </ul>
           </div>
 

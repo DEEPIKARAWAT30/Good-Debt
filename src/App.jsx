@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./components/Header/Home";
 import Navbar from "./components/Header/Navbar";
-import About from "./pages/About/About";
+// import About from "./pages/About/About";
 import Contact from "./pages/Contact";
 import Loan from "./components/Loan/loan";
 import EMICalculator from "./pages/Emi/EMICalculator";
@@ -40,7 +40,7 @@ function App() {
         {/* Public Website Routes */}
         <Route element={<Navbar />}>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
+          {/* <Route path="/about" element={<About />} /> */}
           <Route path="/contact" element={<Contact />} />
           <Route path="/loan-eligibility" element={<Loan />} />
           <Route path="/emi-calculator" element={<EMICalculator />} />

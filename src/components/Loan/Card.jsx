@@ -31,7 +31,7 @@ function Card() {
         eligibleBanks.map((bank, i) => (
           <div
             key={i}
-            className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-2xl shadow-lg p-6 w-80 transform hover:scale-105 transition duration-300"
+            className="bg-linear-to-r from-purple-500 to-indigo-600 text-white rounded-2xl shadow-lg p-6 w-80 transform hover:scale-105 transition duration-300"
           >
             {/* Bank Name */}
             <h2 className="text-2xl font-bold mb-3">{bank.bank_name}</h2>

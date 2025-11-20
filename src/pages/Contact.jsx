@@ -1,5 +1,5 @@
 import React from "react";
-import Footer from '../pages/About/Footer';
+import Footer from '../pages/Footer';
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from "react-icons/fa";
 
 function Contact() {

@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
-import Footer from "../../pages/About/Footer";
+import Footer from "../../pages/Footer";
+// import Footer from "../../pages/Reviews/Footer.jsx";
+
 import pinkback from "../../assets/banner/pink-back.jpg";
 
 // API constant (use exact URL requested)
@@ -43,7 +45,7 @@ export default function Credit() {
     email_address: "",
     pan_number: "",
     date_of_birth: "",
-    employee_type: "Salaried", // Salaried / Self-Employed
+    // employee_type: "Salaried", // Salaried / Self-Employed
     current_city: "",
     current_pincode: "",
     loan_for: "businessLoan", // default as in your example
@@ -64,70 +66,90 @@ export default function Credit() {
   const [loadingInterest, setLoadingInterest] = useState(null);
 
   // Generic field change handler — keys match backend names
-  const handleChange = (e) => {
-    const { name, value, type } = e.target;
-    const newValue = type === "number" ? safeToNumber(value) : value;
+const handleChange = (e) => {
+  const { name, value, type } = e.target;
+  let newValue = value;
 
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
+  // Automatically convert PAN to uppercase
+  if (name === "pan_number") {
+    newValue = value.toUpperCase();
+  }
 
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
+  // Convert number inputs if needed
+  if (type === "number") {
+    newValue = value === "" ? "" : Number(value);
+  }
 
-  // Validation uses the same keys as formData
-  const validateForm = () => {
-    const newErrors = {};
+  setFormData((prev) => ({
+    ...prev,
+    [name]: newValue
+  }));
 
-    // full_name
-    if (!formData.full_name || !formData.full_name.trim()) {
-      newErrors.full_name = "Full name is required";
-    }
+  // Real-time validation
+  validateField(name, newValue);
+};
 
-    // phone_number (10 digits)
-    if (!formData.phone_number) {
-      newErrors.phone_number = "Phone number is required";
-    } else if (!/^\d{10}$/.test(String(formData.phone_number).trim())) {
-      newErrors.phone_number = "Phone number must be 10 digits";
-    }
+const validateField = (name, value) => {
+  let message = "";
 
-    // email_address
-    if (!formData.email_address || !String(formData.email_address).trim()) {
-      newErrors.email_address = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(String(formData.email_address))) {
-      newErrors.email_address = "Email is invalid";
-    }
+  switch (name) {
+    case "full_name":
+      if (!value.trim()) message = "Full name is required";
+      break;
 
-    // pan_number (only required — no strict pattern enforced as requested)
-    if (!formData.pan_number || !String(formData.pan_number).trim()) {
-      newErrors.pan_number = "PAN is required";
-    }
+    case "phone_number":
+      if (!value) message = "Phone number is required";
+      else if (!/^\d{10}$/.test(String(value).trim())) message = "Phone number must be 10 digits";
+      break;
 
-    // date_of_birth
-    if (!formData.date_of_birth) {
-      newErrors.date_of_birth = "Date of birth is required";
-    }
+    case "email_address":
+      if (!value.trim()) message = "Email is required";
+      else if (!/\S+@\S+\.\S+/.test(value)) message = "Email is invalid";
+      break;
 
-    // current_city
-    if (!formData.current_city || !String(formData.current_city).trim()) {
-      newErrors.current_city = "City is required";
-    }
+    case "pan_number":
+      const panVal = value.toUpperCase();
+      if (!panVal.trim()) message = "PAN number is required";
+      else {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(panVal)) message = "PAN is invalid (5 letters, 4 digits, 1 letter)";
+      }
+      break;
 
-    // current_pincode (6 digits)
-    if (!formData.current_pincode || !String(formData.current_pincode).trim()) {
-      newErrors.current_pincode = "Pincode is required";
-    } else if (!/^\d{6}$/.test(String(formData.current_pincode).trim())) {
-      newErrors.current_pincode = "Pincode must be 6 digits";
-    }
+    case "date_of_birth":
+      if (!value) message = "Date of birth is required";
+      break;
 
-    // net_income
-    if (formData.net_income === "" || formData.net_income === null || formData.net_income === undefined) {
-      newErrors.net_income = "Net monthly income is required";
-    }
+    case "current_city":
+      if (!value.trim()) message = "City is required";
+      break;
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    case "current_pincode":
+      if (!value.trim()) message = "Pincode is required";
+      else if (!/^\d{6}$/.test(String(value).trim())) message = "Pincode must be 6 digits";
+      break;
+
+    case "net_income":
+      if (value === "" || value === null || value === undefined) message = "Annual income is required";
+      break;
+
+    case "company_name":
+      if (!value.trim()) message = "Company name is required";
+      break;
+
+    case "business_type":
+      if (!value) message = "Please select business type";
+      break;
+
+    default:
+      break;
+  }
+
+  setErrors(prev => ({
+    ...prev,
+    [name]: message || undefined // clears error when valid
+  }));
+};
 
   // Modal helpers
   const openModal = (title = "", message = "") => setModal({ open: true, title, message });
@@ -136,6 +158,69 @@ export default function Credit() {
   // Submit handler — sends payload exactly as backend expects
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validateForm = () => {
+  const newErrors = {};
+
+  // Full name
+  if (!formData.full_name.trim()) {
+    newErrors.full_name = "Full name is required";
+  }
+
+  // Phone number
+  if (!formData.phone_number) {
+    newErrors.phone_number = "Phone number is required";
+  } else if (!/^\d{10}$/.test(String(formData.phone_number).trim())) {
+    newErrors.phone_number = "Phone number must be 10 digits";
+  }
+
+  // Email
+  if (!formData.email_address.trim()) {
+    newErrors.email_address = "Email is required";
+  } else if (!/\S+@\S+\.\S+/.test(formData.email_address)) {
+    newErrors.email_address = "Email is invalid";
+  }
+
+  // PAN (uppercase + regex)
+  const panVal = formData.pan_number?.toUpperCase() || "";
+  if (!panVal.trim()) {
+    newErrors.pan_number = "PAN number is required";
+  } else {
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panRegex.test(panVal)) {
+      newErrors.pan_number = "PAN is invalid (5 letters, 4 digits, 1 letter)";
+    }
+  }
+
+  // Date of Birth
+  if (!formData.date_of_birth) {
+    newErrors.date_of_birth = "Date of birth is required";
+  }
+
+  // Business type & company name
+  if (!formData.business_type) newErrors.business_type = "Please select business type";
+  if (!formData.company_name?.trim()) newErrors.company_name = "Company name is required";
+
+  // City
+  if (!formData.current_city.trim()) {
+    newErrors.current_city = "City is required";
+  }
+
+  // Pincode
+  if (!formData.current_pincode.trim()) {
+    newErrors.current_pincode = "Pincode is required";
+  } else if (!/^\d{6}$/.test(String(formData.current_pincode.trim()))) {
+    newErrors.current_pincode = "Pincode must be 6 digits";
+  }
+
+  // Net income
+  if (formData.net_income === "" || formData.net_income === null || formData.net_income === undefined) {
+    newErrors.net_income = "Annual income is required";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
 
     if (!validateForm()) {
       openModal("Validation error", "Please fix the highlighted errors before submitting.");
@@ -147,17 +232,20 @@ export default function Credit() {
 
     // Create payload — our formData already uses backend keys
     const payload = {
-      full_name: formData.full_name,
-      phone_number: String(formData.phone_number).trim(),
-      email_address: String(formData.email_address).trim(),
-      pan_number: String(formData.pan_number).trim(),
-      date_of_birth: formData.date_of_birth,
-      employee_type: formData.employee_type,
-      current_city: String(formData.current_city).trim(),
-      current_pincode: String(formData.current_pincode).trim(),
-      loan_for: formData.loan_for,
-      net_income: String(formData.net_income),
-    };
+  full_name: formData.full_name,
+  phone_number: String(formData.phone_number).trim(),
+  email_address: String(formData.email_address).trim(),
+  pan_number: String(formData.pan_number).trim(),
+  date_of_birth: formData.date_of_birth,
+  // employee_type: formData.employee_type,
+  current_city: String(formData.current_city).trim(),
+  current_pincode: String(formData.current_pincode).trim(),
+  loan_for: formData.loan_for,
+  net_income: String(formData.net_income),
+  company_name: formData.company_name || "",       // include if business
+  business_type: formData.business_type || "",     // include if business
+};
+
 
     try {
       const response = await axios.post(ENQUIRY_API_URL, payload, {
@@ -208,7 +296,7 @@ export default function Credit() {
       const payload = {
         bank_id: bank_id,
         enquiry_id: enquiry_id,
-        process_by: process_by,   // "good_debt" or "self"
+        process_by: process_by,   // "good_debt" or "bank"
       };
 
       await axios.post("https://good-debt.onrender.com/api/bank-interest/", payload, {
@@ -234,7 +322,7 @@ export default function Credit() {
       email_address: "",
       pan_number: "",
       date_of_birth: "",
-      employee_type: "Salaried",
+      // employee_type: "Salaried",
       current_city: "",
       current_pincode: "",
       loan_for: "businessLoan",
@@ -276,7 +364,7 @@ export default function Credit() {
               Home
             </NavLink>
             <span> </span>
-            <span>Business Loan</span>
+            <span>Buisness Loan</span>
           </p>
         </div>
       </div>
@@ -312,7 +400,7 @@ export default function Credit() {
               {/* Cancel Button */}
               <button
                 onClick={closeModal}
-                className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
+                className="px-6 py-2.5  cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
               >
                 Cancel
               </button>
@@ -320,7 +408,7 @@ export default function Credit() {
               {/* OK Button */}
               <button
                 onClick={closeModal}
-                className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                className="  cursor-pointer px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
               >
                 OK
               </button>
@@ -372,7 +460,7 @@ export default function Credit() {
                     "Good Debt"
                   );
                 }}
-                className="w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white ..."
+                className="  cursor-pointer w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white ..."
               >
                 Continue with Good Debt
               </button>
@@ -398,7 +486,7 @@ export default function Credit() {
                         href={interestModal.bank.bank_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 underline font-medium"
+                        className=" cursor-pointer text-blue-600 underline font-medium"
                       >
                         Visit Bank Website
                       </a>
@@ -414,7 +502,7 @@ export default function Credit() {
               {/* Cancel Button */}
               <button
                 onClick={closeInterestModal}
-                className="w-full py-3 px-4 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all"
+                className="w-full py-3 px-4  cursor-pointer rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all"
               >
                 Cancel
               </button>
@@ -441,64 +529,86 @@ export default function Credit() {
             </div>
 
             {/* Customer Details */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Customer Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Full Name</p>
-                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.full_name", formData.full_name)}</p>
-                </div>
+<div className="mb-8">
+  <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Customer Information</h3>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Email</p>
-                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.email", formData.email_address)}</p>
-                </div>
+    {/* Full Name */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Full Name</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.full_name", formData.full_name)}</p>
+    </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Phone</p>
-                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.phone", formData.phone_number)}</p>
-                </div>
+    {/* Email */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Email</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.email", formData.email_address)}</p>
+    </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">PAN</p>
-                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pan", formData.pan_number)}</p>
-                </div>
+    {/* Phone */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Phone</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.phone", formData.phone_number)}</p>
+    </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Date of Birth</p>
-                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.dob", formData.date_of_birth)}</p>
-                </div>
+    {/* PAN */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">PAN</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pan", formData.pan_number)}</p>
+    </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Employment Type</p>
-                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.employment_type", formData.employee_type)}</p>
-                </div>
+    {/* Date of Birth */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Date of Birth</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.dob", formData.date_of_birth)}</p>
+    </div>
+{/* 
+    Employment Type
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Employment Type</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.employment_type", formData.employee_type)}</p>
+    </div> */}
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Net Monthly Salary</p>
-                  <p className="font-semibold text-gray-800">
-                    {(() => {
-                      const salary = safeGet(apiResponse, "customer.net_monthly_salary", safeGet(apiResponse, "customer.salary", formData.net_income));
-                      return salary === "-" || salary === undefined || salary === null || salary === ""
-                        ? "-"
-                        : formatCurrency(salary);
-                    })()}
-                  </p>
-                </div>
+    {/* Net Monthly Salary */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Annual Income</p>
+      <p className="font-semibold text-gray-800">
+        {(() => {
+          const salary = safeGet(apiResponse, "customer.net_monthly_salary", safeGet(apiResponse, "customer.salary", formData.net_income));
+          return salary === "-" || salary === undefined || salary === null || salary === ""
+            ? "-"
+            : formatCurrency(salary);
+        })()}
+      </p>
+    </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">City</p>
-                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.city", formData.current_city)}</p>
-                </div>
+    {/* City */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">City</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.city", formData.current_city)}</p>
+    </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Pincode</p>
-                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pincode", formData.current_pincode)}</p>
-                </div>
+    {/* Pincode */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Pincode</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pincode", formData.current_pincode)}</p>
+    </div>
 
+    {/* Business Type */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Business Type</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.business_type", formData.business_type || "-")}</p>
+    </div>
 
-              </div>
-            </div>
+    {/* Company Name */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <p className="text-sm text-gray-600">Company Name</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.company_name", formData.company_name || "-")}</p>
+    </div>
+
+  </div>
+</div>
+
 
             {/* Eligible Banks */}
             <div className="mb-8">
@@ -512,7 +622,7 @@ export default function Credit() {
                       <div
                         key={index}
                         className="border border-gray-200 rounded-lg p-4 sm:p-5 hover:shadow-md transition-shadow
-             bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col justify-between
+             bg-linear-to-br from-blue-50 to-indigo-50 flex flex-col justify-between
              min-h-[170px]"
                       >
                         <div className="flex items-center justify-between mb-2 sm:mb-3">
@@ -525,6 +635,7 @@ export default function Credit() {
                         <button
                           onClick={() => openInterestModal(bank)}
                           className="
+                           cursor-pointer
     w-full             
     sm:w-auto            
     px-4 py-2            
@@ -596,7 +707,7 @@ export default function Credit() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button onClick={resetForm} className="px-6 py-3 bg-red-800 hover:bg-red-600 text-white font-medium rounded-lg transition duration-200">
+              <button onClick={resetForm} className="  cursor-pointer px-6 py-3 bg-red-800 hover:bg-red-600 text-white font-medium rounded-lg transition duration-200">
                 Apply for Another Loan
               </button>
             </div>
@@ -619,7 +730,7 @@ export default function Credit() {
               </div>
             </div>
 
-            <button onClick={() => setApiError(null)} className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-200">
+            <button onClick={() => setApiError(null)} className="  cursor-pointer mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-200">
               Try Again
             </button>
           </div>
@@ -714,8 +825,8 @@ export default function Credit() {
 
                 {/* Net Monthly Income */}
                 <div>
-                  <label htmlFor="net_income" className="block text-sm font-medium text-gray-700 mb-1">Net Monthly Income</label>
-                  <input
+                  <label htmlFor="net_income" className="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
+                  <input 
                     type="number"
                     name="net_income"
                     id="net_income"
@@ -728,21 +839,47 @@ export default function Credit() {
                   {errors.net_income && <p className="mt-1 text-sm text-red-600">{errors.net_income}</p>}
                 </div>
 
-                {/* Employee Type */}
-                <div>
-                  <label htmlFor="employee_type" className="block text-sm font-medium text-gray-700 mb-1">Employment Type</label>
-                  <select
-                    name="employee_type"
-                    id="employee_type"
-                    value={formData.employee_type}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition"
-                  >
-                    <option value="Salaried">Salaried</option>
-                    {/* <option value="Self-Employed">Self-Employed</option>
-                    <option value="Other">Other</option> */}
-                  </select>
-                </div>
+               {/* Business Type */}
+<div>
+  <label htmlFor="business_type" className="block text-sm font-medium text-gray-700 mb-1">
+    Business Type
+  </label>
+  <select
+    name="business_type"
+    id="business_type"
+    value={formData.business_type || ""}
+    onChange={handleChange}
+    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.business_type ? "border-red-500" : "border-gray-300"}`}
+    required
+  >
+    <option value="">Select Business Type</option>
+    <option value="Proprietorship">Proprietorship</option>
+    <option value="Partnership">Partnership</option>
+    <option value="LLP">LLP</option>
+    <option value="Private limited">Private limited</option>
+    <option value="Other">Other</option>
+  </select>
+  {errors.business_type && <p className="mt-1 text-sm text-red-600">{errors.business_type}</p>}
+</div>
+
+{/* Company Name */}
+<div>
+  <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 mb-1">
+    Company Name
+  </label>
+  <input
+    type="text"
+    name="company_name"
+    id="company_name"
+    value={formData.company_name || ""}
+    onChange={handleChange}
+    placeholder="Enter company name"
+    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.company_name ? "border-red-500" : "border-gray-300"}`}
+    required
+  />
+  {errors.company_name && <p className="mt-1 text-sm text-red-600">{errors.company_name}</p>}
+</div>
+
 
                 {/* City */}
                 <div>
@@ -796,7 +933,7 @@ export default function Credit() {
 
               {/* Submit Button */}
               <div className="mt-8">
-                <button type="submit" className="w-full bg-red-800 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-lg transition duration-200">Submit</button>
+                <button type="submit" className="  cursor-pointer w-full bg-red-800 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-lg transition duration-200">Submit</button>
               </div>
 
               {/* Terms */}

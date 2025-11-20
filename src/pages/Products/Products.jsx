@@ -40,7 +40,7 @@ function Products() {
               {/* Button */}
               <div className="mt-auto">
                 <NavLink to="/buisness-loan-eligibility">
-                  <button className="bg-red-700 text-white px-5 py-2 rounded-lg hover:bg-red-800 transition w-full md:w-auto text-sm md:text-base">
+                  <button className=" cursor-pointer bg-red-700 text-white px-5 py-2 rounded-lg hover:bg-red-800 transition w-full md:w-auto text-sm md:text-base">
                     Check Eligibility
                   </button>
                 </NavLink>
@@ -79,7 +79,7 @@ function Products() {
               {/* Button */}
               <div className="mt-auto">
                 <NavLink to="/loan-eligibility">
-                  <button className="bg-red-700 text-white px-5 py-2 rounded-lg hover:bg-red-800 transition w-full md:w-auto text-sm md:text-base">
+                  <button className=" cursor-pointer bg-red-700 text-white px-5 py-2 rounded-lg hover:bg-red-800 transition w-full md:w-auto text-sm md:text-base">
                     Check Eligibility
                   </button>
                 </NavLink>

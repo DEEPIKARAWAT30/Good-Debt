@@ -1,7 +1,8 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../../pages/About/Footer';
+import Footer from "../../pages/Footer";
+
 import { NavLink } from 'react-router-dom';
 import pinkback from '../../assets/banner/pink-back.jpg';
 
@@ -40,25 +41,85 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
   const openModal = (message, title = '') => setModal({ open: true, title, message });
   const closeModal = () => setModal((prev) => ({ ...prev, open: false }));
   const closeInterestModal = () => setInterestModal({ open: false, bank: null });
+const handleChange = (e) => {
+  const { name, value, type } = e.target;
+  let newValue = value;
 
+  // Automatically convert PAN to uppercase
+  if (name === "pan") {
+    newValue = value.toUpperCase();
+  }
 
-  const handleChange = (e) => {
-    const { name, value, type } = e.target; 
-    let newValue = value;
-    if (type === "number") {
-      newValue = value === "" ? "" : Number(value);
-    }
-    setFormData({
-      ...formData,
-      [name]: newValue
-    });
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
-    }
-  };
+  // Convert number inputs to actual numbers
+  if (type === "number") {
+    newValue = value === "" ? "" : Number(value);
+  }
+
+  // Update formData
+  setFormData({
+    ...formData,
+    [name]: newValue,
+  });
+
+  // Real-time validation for this field
+  validateField(name, newValue);
+};
+
+const validateField = (name, value) => {
+  let message = "";
+
+  switch (name) {
+    case "full_name":
+      if (!value || !value.trim()) message = "Full name is required";
+      break;
+
+    case "phone":
+      if (!value) message = "Phone number is required";
+      else if (!/^\d{10}$/.test(String(value).trim())) message = "Phone number must be 10 digits";
+      break;
+
+    case "email":
+      if (!value || !value.trim()) message = "Email is required";
+      else if (!/\S+@\S+\.\S+/.test(value.trim())) message = "Email is invalid";
+      break;
+
+    case "pan":
+      if (!value || !value.trim()) message = "PAN number is required";
+      else {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(value.trim().toUpperCase())) {
+          message = "PAN is invalid (should be 5 letters, 4 digits, 1 letter)";
+        }
+      }
+      break;
+
+    case "dob":
+      if (!value) message = "Date of birth is required";
+      break;
+
+    case "city":
+      if (!value || !value.trim()) message = "City is required";
+      break;
+
+    case "pincode":
+      if (!value || !value.trim()) message = "Pincode is required";
+      else if (!/^\d{6}$/.test(value.trim())) message = "Pincode must be 6 digits";
+      break;
+
+    case "salary":
+      if (value === "" || value === null || value === undefined) message = "Net monthly income is required";
+      break;
+
+    default:
+      break;
+  }
+
+  setErrors(prev => ({
+    ...prev,
+    [name]: message
+  }));
+};
+
 
   const handleEmployment_typeChange = (e) => {
     const value = e.target.value;
@@ -78,29 +139,64 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
     setShowExistingLoanFields(value === 'yes');
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.full_name.trim()) newErrors.full_name = 'Full name is required';
-    if (!formData.phone) newErrors.phone = 'Phone number is required';
-    else if (!/^\d{10}$/.test(formData.phone)) newErrors.phone = 'Phone number must be 10 digits';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    if (!formData.pan.trim()) newErrors.pan = 'PAN number is required';
-    if (!formData.dob) newErrors.dob = 'Date of birth is required';
-    if (!formData.employment_type) newErrors.employment_type = 'Employment type is required';
-    if (!formData.city.trim()) newErrors.city = 'City is required';
-    if (!formData.pincode.trim()) newErrors.pincode = 'Pincode is required';
-    else if (!/^\d{6}$/.test(formData.pincode)) newErrors.pincode = 'Pincode must be 6 digits';
-    
-    // Salary validation for all employment types
-    if (!formData.salary) newErrors.salary = 'Monthly income/salary is required';
-    else if (formData.salary <= 0) newErrors.salary = 'Monthly income/salary must be greater than 0';
-    
-    // if (!formData.existing_loan) newErrors.existing_loan = 'Please select an option';
+ const validateForm = () => {
+  const newErrors = {};
+  
+  // Full Name
+  if (!formData.full_name || !formData.full_name.trim()) {
+    newErrors.full_name = "Full name is required";
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  // Phone Number
+  if (!formData.phone) {
+    newErrors.phone = "Phone number is required";
+  } else if (!/^\d{10}$/.test(String(formData.phone).trim())) {
+    newErrors.phone = "Phone number must be 10 digits";
+  }
+
+  // Email
+  if (!formData.email || !formData.email.trim()) {
+    newErrors.email = "Email is required";
+  } else if (!/\S+@\S+\.\S+/.test(formData.email.trim())) {
+    newErrors.email = "Email is invalid";
+  }
+
+  // PAN Number
+  if (!formData.pan || !formData.pan.trim()) {
+    newErrors.pan = "PAN number is required";
+  } else {
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panRegex.test(formData.pan.trim().toUpperCase())) {
+      newErrors.pan = "PAN is invalid (should be 5 letters, 4 digits, 1 letter)";
+    }
+  }
+
+  // Date of Birth
+  if (!formData.dob) {
+    newErrors.dob = "Date of birth is required";
+  }
+
+  // City
+  if (!formData.city || !formData.city.trim()) {
+    newErrors.city = "City is required";
+  }
+
+  // Pincode
+  if (!formData.pincode || !formData.pincode.trim()) {
+    newErrors.pincode = "Pincode is required";
+  } else if (!/^\d{6}$/.test(formData.pincode.trim())) {
+    newErrors.pincode = "Pincode must be 6 digits";
+  }
+
+  // Net Income / Salary
+  if (formData.salary === "" || formData.salary === null || formData.salary === undefined) {
+    newErrors.salary = "Net monthly income is required";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
 
   const handleSubmit = (e) => {
   e.preventDefault();
@@ -311,7 +407,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
         {/* Cancel Button */}
         <button
           onClick={closeModal}
-          className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
+          className="  cursor-pointer px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-200"
         >
           Cancel
         </button>
@@ -319,7 +415,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
         {/* OK Button */}
         <button
           onClick={closeModal}
-          className="px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+          className="  cursor-pointer px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
         >
           OK
         </button>
@@ -371,7 +467,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
       "Good Debt"
     );
   }}
-  className="w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white ..."
+  className="  cursor-pointer w-full py-3 px-4 rounded-xl bg-red-800 hover:bg-red-700 text-white ..."
 >
   Continue with Good Debt
 </button>
@@ -397,14 +493,14 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
           href={interestModal.bank.bank_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 underline font-medium"
+          className=" cursor-pointer text-blue-600 underline font-medium"
         >
           Visit Bank Website
         </a>
       </span>
     );
   }}
-  className="w-full py-3 px-4 rounded-xl bg-white hover:bg-red-900 hover:text-white text-black border-2 border-red-800 font-medium shadow-lg transition-all"
+  className="  cursor-pointer w-full py-3 px-4 rounded-xl bg-white hover:bg-red-900 hover:text-white text-black border-2 border-red-800 font-medium shadow-lg transition-all"
 >
   Visit Bank Website
 </button>
@@ -413,7 +509,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
         {/* Cancel Button */}
         <button
           onClick={closeInterestModal}
-          className="w-full py-3 px-4 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all"
+          className=" cursor-pointer w-full py-3 px-4 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all"
         >
           Cancel
         </button>
@@ -499,7 +595,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
     const alreadyInterested = submittedInterests.includes(interestKey);
     const isLoading = loadingInterest === interestKey;
     return (
-      <div key={index} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div key={index} className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow bg-linear-to-br from-blue-50 to-indigo-50">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-lg font-bold text-red-800">{bank.bank_name}</h4>
         </div>
@@ -508,14 +604,14 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
             <span className="text-gray-600">Pincode</span>
             <span className="font-semibold text-green-600">{bank.pincode}</span>
           </div>
-          <div className="flex justify-between">
+          {/* <div className="flex justify-between">
             <span className="text-gray-600">Loan Types</span>
             <span className="font-semibold">{bank.loan_types}</span>
-          </div>
+          </div> */}
         </div>
         <button
           onClick={() => setInterestModal({ open: true, bank })}
-          className="w-full mt-4 bg-red-800 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
+          className=" cursor-pointer w-full mt-4 bg-red-800 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
         >
          Interested
         </button>
@@ -529,7 +625,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <button
           onClick={resetForm}
-          className="px-6 py-3 my-2 bg-red-800 hover:bg-red-600 text-white font-medium rounded-lg transition duration-200"
+          className=" cursor-pointer px-6 py-3 my-2 bg-red-800 hover:bg-red-600 text-white font-medium rounded-lg transition duration-200"
         >
           Apply for Another Loan
         </button>
@@ -555,7 +651,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
             </div>
             <button
               onClick={() => setApiError(null)}
-              className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-200"
+              className=" cursor-pointer mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-200"
             >
               Try Again
             </button>
@@ -676,7 +772,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
                   <option value="Private Employee">Private Employee</option>
                   <option value="Government">Government</option>
                   <option value="Self Employed Professional">Self Employed Professional</option>
-                  <option value="Self Employed">Self Employed</option>
+                  {/* <option value="Self Employed">Self Employed</option> */}
                 </select>
                 {errors.employment_type && <p className="mt-1 text-sm text-red-600">{errors.employment_type}</p>}
               </div>
@@ -843,7 +939,7 @@ const [interestModal, setInterestModal] = useState({ open: false, bank: null });
               {/* <NavLink to="/registration-success"> */}
               <button
                 type="submit"
-                className="w-full bg-red-800 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200"
+                className=" cursor-pointer w-full bg-red-800 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200"
               >
                 Submit
               </button>
