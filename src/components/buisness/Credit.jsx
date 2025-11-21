@@ -198,7 +198,7 @@ const validateField = (name, value) => {
 
   // Business type & company name
   if (!formData.business_type) newErrors.business_type = "Please select business type";
-  if (!formData.company_name?.trim()) newErrors.company_name = "Company name is required";
+  if (!formData.companyName?.trim()) newErrors.companyName = "Company name is required";
 
   // City
   if (!formData.current_city.trim()) {
@@ -242,7 +242,7 @@ const validateField = (name, value) => {
   current_pincode: String(formData.current_pincode).trim(),
   loan_for: formData.loan_for,
   net_income: String(formData.net_income),
-  company_name: formData.company_name || "",       // include if business
+  companyName: formData.companyName|| "",       // include if business
   business_type: formData.business_type || "",     // include if business
 };
 
@@ -603,7 +603,7 @@ const validateField = (name, value) => {
     {/* Company Name */}
     <div className="bg-gray-50 p-4 rounded-lg">
       <p className="text-sm text-gray-600">Company Name</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.company_name", formData.company_name || "-")}</p>
+      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.companyName", formData.company_name || "-")}</p>
     </div>
 
   </div>
@@ -864,20 +864,20 @@ const validateField = (name, value) => {
 
 {/* Company Name */}
 <div>
-  <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 mb-1">
+  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
     Company Name
   </label>
   <input
     type="text"
-    name="company_name"
-    id="company_name"
-    value={formData.company_name || ""}
+    name="companyName"
+    id="companyName"
+    value={formData.companyName || ""}
     onChange={handleChange}
     placeholder="Enter company name"
     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.company_name ? "border-red-500" : "border-gray-300"}`}
     required
   />
-  {errors.company_name && <p className="mt-1 text-sm text-red-600">{errors.company_name}</p>}
+  {errors.companyName && <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>}
 </div>
 
 
