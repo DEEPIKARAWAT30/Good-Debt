@@ -66,90 +66,90 @@ export default function Credit() {
   const [loadingInterest, setLoadingInterest] = useState(null);
 
   // Generic field change handler — keys match backend names
-const handleChange = (e) => {
-  const { name, value, type } = e.target;
-  let newValue = value;
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
+    let newValue = value;
 
-  // Automatically convert PAN to uppercase
-  if (name === "pan_number") {
-    newValue = value.toUpperCase();
-  }
+    // Automatically convert PAN to uppercase
+    if (name === "pan_number") {
+      newValue = value.toUpperCase();
+    }
 
-  // Convert number inputs if needed
-  if (type === "number") {
-    newValue = value === "" ? "" : Number(value);
-  }
+    // Convert number inputs if needed
+    if (type === "number") {
+      newValue = value === "" ? "" : Number(value);
+    }
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: newValue
-  }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: newValue
+    }));
 
-  // Real-time validation
-  validateField(name, newValue);
-};
+    // Real-time validation
+    validateField(name, newValue);
+  };
 
-const validateField = (name, value) => {
-  let message = "";
+  const validateField = (name, value) => {
+    let message = "";
 
-  switch (name) {
-    case "full_name":
-      if (!value.trim()) message = "Full name is required";
-      break;
+    switch (name) {
+      case "full_name":
+        if (!value.trim()) message = "Full name is required";
+        break;
 
-    case "phone_number":
-      if (!value) message = "Phone number is required";
-      else if (!/^\d{10}$/.test(String(value).trim())) message = "Phone number must be 10 digits";
-      break;
+      case "phone_number":
+        if (!value) message = "Phone number is required";
+        else if (!/^\d{10}$/.test(String(value).trim())) message = "Phone number must be 10 digits";
+        break;
 
-    case "email_address":
-      if (!value.trim()) message = "Email is required";
-      else if (!/\S+@\S+\.\S+/.test(value)) message = "Email is invalid";
-      break;
+      case "email_address":
+        if (!value.trim()) message = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(value)) message = "Email is invalid";
+        break;
 
-    case "pan_number":
-      const panVal = value.toUpperCase();
-      if (!panVal.trim()) message = "PAN number is required";
-      else {
-        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-        if (!panRegex.test(panVal)) message = "PAN is invalid (5 letters, 4 digits, 1 letter)";
-      }
-      break;
+      case "pan_number":
+        const panVal = value.toUpperCase();
+        if (!panVal.trim()) message = "PAN number is required";
+        else {
+          const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+          if (!panRegex.test(panVal)) message = "PAN is invalid (5 letters, 4 digits, 1 letter)";
+        }
+        break;
 
-    case "date_of_birth":
-      if (!value) message = "Date of birth is required";
-      break;
+      case "date_of_birth":
+        if (!value) message = "Date of birth is required";
+        break;
 
-    case "current_city":
-      if (!value.trim()) message = "City is required";
-      break;
+      case "current_city":
+        if (!value.trim()) message = "City is required";
+        break;
 
-    case "current_pincode":
-      if (!value.trim()) message = "Pincode is required";
-      else if (!/^\d{6}$/.test(String(value).trim())) message = "Pincode must be 6 digits";
-      break;
+      case "current_pincode":
+        if (!value.trim()) message = "Pincode is required";
+        else if (!/^\d{6}$/.test(String(value).trim())) message = "Pincode must be 6 digits";
+        break;
 
-    case "net_income":
-      if (value === "" || value === null || value === undefined) message = "Annual income is required";
-      break;
+      case "net_income":
+        if (value === "" || value === null || value === undefined) message = "Annual income is required";
+        break;
 
-    case "company_name":
-      if (!value.trim()) message = "Company name is required";
-      break;
+      case "company_name":
+        if (!value.trim()) message = "Company name is required";
+        break;
 
-    case "business_type":
-      if (!value) message = "Please select business type";
-      break;
+      case "business_type":
+        if (!value) message = "Please select business type";
+        break;
 
-    default:
-      break;
-  }
+      default:
+        break;
+    }
 
-  setErrors(prev => ({
-    ...prev,
-    [name]: message || undefined // clears error when valid
-  }));
-};
+    setErrors(prev => ({
+      ...prev,
+      [name]: message || undefined // clears error when valid
+    }));
+  };
 
   // Modal helpers
   const openModal = (title = "", message = "") => setModal({ open: true, title, message });
@@ -159,67 +159,67 @@ const validateField = (name, value) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validateForm = () => {
-  const newErrors = {};
+      const newErrors = {};
 
-  // Full name
-  if (!formData.full_name.trim()) {
-    newErrors.full_name = "Full name is required";
-  }
+      // Full name
+      if (!formData.full_name.trim()) {
+        newErrors.full_name = "Full name is required";
+      }
 
-  // Phone number
-  if (!formData.phone_number) {
-    newErrors.phone_number = "Phone number is required";
-  } else if (!/^\d{10}$/.test(String(formData.phone_number).trim())) {
-    newErrors.phone_number = "Phone number must be 10 digits";
-  }
+      // Phone number
+      if (!formData.phone_number) {
+        newErrors.phone_number = "Phone number is required";
+      } else if (!/^\d{10}$/.test(String(formData.phone_number).trim())) {
+        newErrors.phone_number = "Phone number must be 10 digits";
+      }
 
-  // Email
-  if (!formData.email_address.trim()) {
-    newErrors.email_address = "Email is required";
-  } else if (!/\S+@\S+\.\S+/.test(formData.email_address)) {
-    newErrors.email_address = "Email is invalid";
-  }
+      // Email
+      if (!formData.email_address.trim()) {
+        newErrors.email_address = "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email_address)) {
+        newErrors.email_address = "Email is invalid";
+      }
 
-  // PAN (uppercase + regex)
-  const panVal = formData.pan_number?.toUpperCase() || "";
-  if (!panVal.trim()) {
-    newErrors.pan_number = "PAN number is required";
-  } else {
-    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!panRegex.test(panVal)) {
-      newErrors.pan_number = "PAN is invalid (5 letters, 4 digits, 1 letter)";
-    }
-  }
+      // PAN (uppercase + regex)
+      const panVal = formData.pan_number?.toUpperCase() || "";
+      if (!panVal.trim()) {
+        newErrors.pan_number = "PAN number is required";
+      } else {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(panVal)) {
+          newErrors.pan_number = "PAN is invalid (5 letters, 4 digits, 1 letter)";
+        }
+      }
 
-  // Date of Birth
-  if (!formData.date_of_birth) {
-    newErrors.date_of_birth = "Date of birth is required";
-  }
+      // Date of Birth
+      if (!formData.date_of_birth) {
+        newErrors.date_of_birth = "Date of birth is required";
+      }
 
-  // Business type & company name
-  if (!formData.business_type) newErrors.business_type = "Please select business type";
-  if (!formData.companyName?.trim()) newErrors.companyName = "Company name is required";
+      // Business type & company name
+      if (!formData.business_type) newErrors.business_type = "Please select business type";
+      if (!formData.companyName?.trim()) newErrors.companyName = "Company name is required";
 
-  // City
-  if (!formData.current_city.trim()) {
-    newErrors.current_city = "City is required";
-  }
+      // City
+      if (!formData.current_city.trim()) {
+        newErrors.current_city = "City is required";
+      }
 
-  // Pincode
-  if (!formData.current_pincode.trim()) {
-    newErrors.current_pincode = "Pincode is required";
-  } else if (!/^\d{6}$/.test(String(formData.current_pincode.trim()))) {
-    newErrors.current_pincode = "Pincode must be 6 digits";
-  }
+      // Pincode
+      if (!formData.current_pincode.trim()) {
+        newErrors.current_pincode = "Pincode is required";
+      } else if (!/^\d{6}$/.test(String(formData.current_pincode.trim()))) {
+        newErrors.current_pincode = "Pincode must be 6 digits";
+      }
 
-  // Net income
-  if (formData.net_income === "" || formData.net_income === null || formData.net_income === undefined) {
-    newErrors.net_income = "Annual income is required";
-  }
+      // Net income
+      if (formData.net_income === "" || formData.net_income === null || formData.net_income === undefined) {
+        newErrors.net_income = "Annual income is required";
+      }
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
 
 
     if (!validateForm()) {
@@ -232,19 +232,19 @@ const validateField = (name, value) => {
 
     // Create payload — our formData already uses backend keys
     const payload = {
-  full_name: formData.full_name,
-  phone_number: String(formData.phone_number).trim(),
-  email_address: String(formData.email_address).trim(),
-  pan_number: String(formData.pan_number).trim(),
-  date_of_birth: formData.date_of_birth,
-  // employee_type: formData.employee_type,
-  current_city: String(formData.current_city).trim(),
-  current_pincode: String(formData.current_pincode).trim(),
-  loan_for: formData.loan_for,
-  net_income: String(formData.net_income),
-  companyName: formData.companyName|| "",       // include if business
-  business_type: formData.business_type || "",     // include if business
-};
+      full_name: formData.full_name,
+      phone_number: String(formData.phone_number).trim(),
+      email_address: String(formData.email_address).trim(),
+      pan_number: String(formData.pan_number).trim(),
+      date_of_birth: formData.date_of_birth,
+      // employee_type: formData.employee_type,
+      current_city: String(formData.current_city).trim(),
+      current_pincode: String(formData.current_pincode).trim(),
+      loan_for: formData.loan_for,
+      net_income: String(formData.net_income),
+      companyName: formData.companyName || "",       // include if business
+      business_type: formData.business_type || "",     // include if business
+    };
 
 
     try {
@@ -407,12 +407,16 @@ const validateField = (name, value) => {
 
               {/* OK Button */}
               <button
-                onClick={closeModal}
-                className="  cursor-pointer px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                onClick={() => {
+                  if (modal.type === "bank") {
+                    window.open(modal.bankUrl, "_blank"); // redirect to bank link
+                  }
+                  closeModal(); // close modal for both
+                }}
+                className="cursor-pointer px-6 py-2.5 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 shadow-md hover:shadow-lg"
               >
                 OK
               </button>
-
             </div>
           </div>
         </div>
@@ -529,85 +533,85 @@ const validateField = (name, value) => {
             </div>
 
             {/* Customer Details */}
-<div className="mb-8">
-  <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Customer Information</h3>
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Customer Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-    {/* Full Name */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">Full Name</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.full_name", formData.full_name)}</p>
-    </div>
+                {/* Full Name */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Full Name</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.full_name", formData.full_name)}</p>
+                </div>
 
-    {/* Email */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">Email</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.email", formData.email_address)}</p>
-    </div>
+                {/* Email */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Email</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.email", formData.email_address)}</p>
+                </div>
 
-    {/* Phone */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">Phone</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.phone", formData.phone_number)}</p>
-    </div>
+                {/* Phone */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Phone</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.phone", formData.phone_number)}</p>
+                </div>
 
-    {/* PAN */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">PAN</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pan", formData.pan_number)}</p>
-    </div>
+                {/* PAN */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">PAN</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pan", formData.pan_number)}</p>
+                </div>
 
-    {/* Date of Birth */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">Date of Birth</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.dob", formData.date_of_birth)}</p>
-    </div>
-{/* 
+                {/* Date of Birth */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Date of Birth</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.dob", formData.date_of_birth)}</p>
+                </div>
+                {/* 
     Employment Type
     <div className="bg-gray-50 p-4 rounded-lg">
       <p className="text-sm text-gray-600">Employment Type</p>
       <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.employment_type", formData.employee_type)}</p>
     </div> */}
 
-    {/* Net Monthly Salary */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">Annual Income</p>
-      <p className="font-semibold text-gray-800">
-        {(() => {
-          const salary = safeGet(apiResponse, "customer.net_monthly_salary", safeGet(apiResponse, "customer.salary", formData.net_income));
-          return salary === "-" || salary === undefined || salary === null || salary === ""
-            ? "-"
-            : formatCurrency(salary);
-        })()}
-      </p>
-    </div>
+                {/* Net Monthly Salary */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Annual Income</p>
+                  <p className="font-semibold text-gray-800">
+                    {(() => {
+                      const salary = safeGet(apiResponse, "customer.net_monthly_salary", safeGet(apiResponse, "customer.salary", formData.net_income));
+                      return salary === "-" || salary === undefined || salary === null || salary === ""
+                        ? "-"
+                        : formatCurrency(salary);
+                    })()}
+                  </p>
+                </div>
 
-    {/* City */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">City</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.city", formData.current_city)}</p>
-    </div>
+                {/* City */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">City</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.city", formData.current_city)}</p>
+                </div>
 
-    {/* Pincode */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">Pincode</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pincode", formData.current_pincode)}</p>
-    </div>
+                {/* Pincode */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Pincode</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.pincode", formData.current_pincode)}</p>
+                </div>
 
-    {/* Business Type */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">Business Type</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.business_type", formData.business_type || "-")}</p>
-    </div>
+                {/* Business Type */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Business Type</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.business_type", formData.business_type || "-")}</p>
+                </div>
 
-    {/* Company Name */}
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <p className="text-sm text-gray-600">Company Name</p>
-      <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.companyName", formData.company_name || "-")}</p>
-    </div>
+                {/* Company Name */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Company Name</p>
+                  <p className="font-semibold text-gray-800">{safeGet(apiResponse, "customer.companyName", formData.company_name || "-")}</p>
+                </div>
 
-  </div>
-</div>
+              </div>
+            </div>
 
 
             {/* Eligible Banks */}
@@ -826,7 +830,7 @@ const validateField = (name, value) => {
                 {/* Net Monthly Income */}
                 <div>
                   <label htmlFor="net_income" className="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
-                  <input 
+                  <input
                     type="number"
                     name="net_income"
                     id="net_income"
@@ -839,46 +843,46 @@ const validateField = (name, value) => {
                   {errors.net_income && <p className="mt-1 text-sm text-red-600">{errors.net_income}</p>}
                 </div>
 
-               {/* Business Type */}
-<div>
-  <label htmlFor="business_type" className="block text-sm font-medium text-gray-700 mb-1">
-    Business Type
-  </label>
-  <select
-    name="business_type"
-    id="business_type"
-    value={formData.business_type || ""}
-    onChange={handleChange}
-    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.business_type ? "border-red-500" : "border-gray-300"}`}
-    required
-  >
-    <option value="">Select Business Type</option>
-    <option value="Proprietorship">Proprietorship</option>
-    <option value="Partnership">Partnership</option>
-    <option value="LLP">LLP</option>
-    <option value="Private limited">Private limited</option>
-    <option value="Other">Other</option>
-  </select>
-  {errors.business_type && <p className="mt-1 text-sm text-red-600">{errors.business_type}</p>}
-</div>
+                {/* Business Type */}
+                <div>
+                  <label htmlFor="business_type" className="block text-sm font-medium text-gray-700 mb-1">
+                    Business Type
+                  </label>
+                  <select
+                    name="business_type"
+                    id="business_type"
+                    value={formData.business_type || ""}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.business_type ? "border-red-500" : "border-gray-300"}`}
+                    required
+                  >
+                    <option value="">Select Business Type</option>
+                    <option value="Proprietorship">Proprietorship</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="LLP">LLP</option>
+                    <option value="Private limited">Private limited</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  {errors.business_type && <p className="mt-1 text-sm text-red-600">{errors.business_type}</p>}
+                </div>
 
-{/* Company Name */}
-<div>
-  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
-    Company Name
-  </label>
-  <input
-    type="text"
-    name="companyName"
-    id="companyName"
-    value={formData.companyName || ""}
-    onChange={handleChange}
-    placeholder="Enter company name"
-    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.company_name ? "border-red-500" : "border-gray-300"}`}
-    required
-  />
-  {errors.companyName && <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>}
-</div>
+                {/* Company Name */}
+                <div>
+                  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    id="companyName"
+                    value={formData.companyName || ""}
+                    onChange={handleChange}
+                    placeholder="Enter company name"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-800 focus:border-red-800 outline-none transition ${errors.company_name ? "border-red-500" : "border-gray-300"}`}
+                    required
+                  />
+                  {errors.companyName && <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>}
+                </div>
 
 
                 {/* City */}

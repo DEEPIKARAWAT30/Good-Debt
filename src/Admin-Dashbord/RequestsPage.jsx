@@ -18,7 +18,6 @@ function RequestsPage() {
   const [bankModalData, setBankModalData] = useState([]);
   const [showBankModal, setShowBankModal] = useState(false);
 
-  // Convert Date to Indian Standard Time
   const convertToIST = (dateString) => {
     if (!dateString) return "Unknown";
     const date = new Date(dateString);
@@ -30,7 +29,7 @@ function RequestsPage() {
     });
   };
 
-  // Fetch Bank List Modal
+  // -------------------- FETCH BANK LIST --------------------
   const openBankModal = async (enquiryId) => {
     try {
       const res = await axios.get(`${BANK_INTEREST_URL}?enquiry_id=${enquiryId}`);
@@ -43,7 +42,7 @@ function RequestsPage() {
     }
   };
 
-  // Fetch Enquiries
+  // -------------------- FETCH ENQUIRIES --------------------
   const fetchRequests = async (url = BASE_URL) => {
     try {
       setLoading(true);
@@ -51,21 +50,22 @@ function RequestsPage() {
 
       const response = await axios.get(url);
 
-      const customers = Array.isArray(response.data.data)
-        ? response.data.data.map((customer) => {
-            const dateField =
-              customer.last_eligiblity_check ||
-              customer.last_eligibility_check ||
-              customer.created_at ||
-              customer.date;
+      // DRF sends "results"
+      const results = response.data.results || [];
 
-            return {
-              ...customer,
-              status: customer.eligibility_status || "In Review",
-              date: convertToIST(dateField),
-            };
-          })
-        : [];
+      const customers = results.map((customer) => {
+        const dateField =
+          customer.last_eligiblity_check ||
+          customer.last_eligibility_check ||
+          customer.created_at ||
+          customer.date;
+
+        return {
+          ...customer,
+          status: customer.eligibility_status || "In Review",
+          date: convertToIST(dateField),
+        };
+      });
 
       setRequestsData(customers);
       setNextPage(response.data.next);
@@ -106,32 +106,21 @@ function RequestsPage() {
     return text
       .toLowerCase()
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
   };
 
   const getStatusStyle = (loanFor) => {
-    const cleanValue = loanFor.trim().toUpperCase();
-    const formattedText = capitalizeWords(loanFor);
+    const cleanValue = loanFor?.trim()?.toUpperCase() || "";
+    const formattedText = capitalizeWords(loanFor || "");
 
     switch (cleanValue) {
       case "PL":
-        return {
-          text: "Personal Loan",
-          class: "font-bold text-[#1e9e27]",
-        };
-
+        return { text: "Personal Loan", class: "font-bold text-[#1e9e27]" };
       case "BL":
-        return {
-          text: "Business Loan",
-          class: "font-bold text-[#9e1e27]",
-        };
-
+        return { text: "Business Loan", class: "font-bold text-[#9e1e27]" };
       default:
-        return {
-          text: formattedText,
-          class: "font-bold text-gray-700",
-        };
+        return { text: formattedText, class: "font-bold text-gray-700" };
     }
   };
 
@@ -160,10 +149,7 @@ function RequestsPage() {
         <table className="w-full min-w-[900px] bg-white border-collapse">
           <thead className="bg-gray-50 sticky top-0 z-10">
             <tr className="text-left text-gray-600 uppercase text-sm">
-
-              {/* NEW SERIAL NUMBER COLUMN */}
               <th className="px-6 py-3 border-b">S.No</th>
-
               <th className="px-6 py-3 border-b">Full Name</th>
               <th className="px-6 py-3 border-b">Email</th>
               <th className="px-6 py-3 border-b">Phone</th>
@@ -177,19 +163,12 @@ function RequestsPage() {
 
           <tbody>
             {filteredRequests.map((req, index) => (
-              <tr
-                key={req.id || req.email}
-                className="border-b hover:bg-gray-50 transition"
-              >
-
-                {/* SERIAL NUMBER */}
+              <tr key={req.id} className="border-b hover:bg-gray-50 transition">
                 <td className="px-6 py-4 font-medium text-gray-800">
-                  {index + 1}
+                  {(currentPage - 1) * 20 + (index + 1)}
                 </td>
 
-                <td className="px-6 py-4 font-medium text-gray-800">
-                  {req.full_name}
-                </td>
+                <td className="px-6 py-4 font-medium text-gray-800">{req.full_name}</td>
                 <td className="px-6 py-4">{req.email_address}</td>
                 <td className="px-6 py-4">{req.phone_number}</td>
                 <td className="px-6 py-4">{req.employee_type}</td>
@@ -207,14 +186,12 @@ function RequestsPage() {
                   })()}
                 </td>
 
-                {/* NEW BUTTON */}
                 <td className="px-6 py-4">
                   <button
                     onClick={() => openBankModal(req.id)}
-                    className=" cursor-pointer px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm"
+                    className="cursor-pointer px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm"
                     type="button"
                   >
-                     
                     View Banks
                   </button>
                 </td>
@@ -223,7 +200,7 @@ function RequestsPage() {
 
                 <td className="px-6 py-4 text-center flex justify-center">
                   <button
-                    className=" cursor-pointer p-2 rounded-md bg-gray-100 hover:bg-gray-200"
+                    className="cursor-pointer p-2 rounded-md bg-gray-100 hover:bg-gray-200"
                     onClick={() => setSelectedUser(req)}
                   >
                     <Eye size={16} />
@@ -253,7 +230,7 @@ function RequestsPage() {
           onClick={handleNext}
           disabled={!nextPage || loading}
           className={`px-4 py-2 rounded-md border ${
-            nextPage ? "bg-white hover:bg-gray-100" : "bg-gray-100  cursor-pointer"
+            nextPage ? "bg-white hover:bg-gray-100" : "bg-gray-100 cursor-pointer"
           }`}
         >
           Next
@@ -265,15 +242,18 @@ function RequestsPage() {
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 px-4">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-[90%] md:max-w-4xl mx-auto p-6 overflow-auto max-h-[80vh] relative">
             <button
-              className=" cursor-pointer absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-lg font-bold"
+              className="cursor-pointer absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-lg font-bold"
               onClick={() => setSelectedUser(null)}
             >
               ✕
             </button>
+
             <h2 className="text-xl font-semibold mb-4 text-center">User Details</h2>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
               {Object.entries(selectedUser).map(([key, value]) => {
                 if (typeof value === "object" && value !== null) return null;
+
                 return (
                   <div key={key}>
                     <strong>{key.replace(/_/g, " ").toUpperCase()}:</strong>{" "}
@@ -292,7 +272,7 @@ function RequestsPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-auto p-6 relative overflow-hidden">
             <button
               onClick={() => setShowBankModal(false)}
-              className=" cursor-pointer absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-xl font-bold"
+              className="cursor-pointer absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-xl font-bold"
             >
               ✕
             </button>
@@ -320,14 +300,12 @@ function RequestsPage() {
                   </thead>
 
                   <tbody className="text-gray-700 text-sm">
-                    {bankModalData.map((bank, index) => (
-                      <tr key={index} className="hover:bg-gray-50 transition">
+                    {bankModalData.map((bank, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50 transition">
                         <td className="px-4 py-3 border-b font-medium">
                           {bank.bank_name}
                         </td>
-
                         <td className="px-4 py-3 border-b">{bank.city || "Unknown"}</td>
-
                         <td className="px-4 py-3 border-b">{bank.state || "Unknown"}</td>
 
                         <td className="px-4 py-3 border-b">
